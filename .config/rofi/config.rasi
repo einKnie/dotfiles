@@ -1,0 +1,148 @@
+/**
+ * Author: lila
+ * 
+ */
+
+/* actual rofi config - apart from aesthetics - goes here 
+    get a list of possible parameters with rofi -dump-config > ./conf
+*/
+configuration {
+ matching: "glob";
+}
+
+/* color && design confiuration 
+ * INFO: to have everything in one color only: set all backgrounds to 0 % opacity
+ * except the background-color in the window-block!
+ * selected-* : how an entry looks if is is currently selected
+ * alternate-*: how an entry looks when it is not selected
+*/
+* {
+    text-color:                  rgba(242, 242, 242, 60 %);
+    background-color:            transparent; //rgba(0, 0, 0, 0 %);
+    background:                  @background-color;
+    lightbg:                     @background-color;
+    red:                         rgba(223, 41, 36, 60 %);
+    orange:                      rgba(77, 134, 41, 60 %);  // actually light green 
+    blue:                        rgba(44, 110, 51, 60 %);  // actually green
+
+    normal-foreground:           @foreground;
+    urgent-foreground:           @red;//@foreground;
+    active-foreground:           @orange;//@foreground;
+    selected-normal-foreground:  @blue;//@foreground;
+    selected-urgent-foreground:  @blue;//@foreground;
+    selected-active-foreground:  @blue;//@foreground;
+    alternate-normal-foreground: @foreground;
+    alternate-urgent-foreground: @red;//@foreground;
+    alternate-active-foreground: @orange;//@active-foreground;
+
+    normal-background:           @background;
+    urgent-background:           @background;//@red;
+    active-background:           @background;//@orange;
+    selected-normal-background:  @background;//@blue; 
+    selected-urgent-background:  @background;//@blue;
+    selected-active-background:  @background;//@blue;
+    alternate-normal-background: @background;
+    alternate-urgent-background: @background;//@red;
+    alternate-active-background: @background;//@orange;
+
+    border-color:                @background;
+    separatorcolor:              @background;
+    spacing:                     2;
+    separator-style:             "none";
+    padding:                     0;
+    
+}
+#window {
+    border:     0;
+    text-color: @foreground;
+    background-color: rgba ( 21, 21, 21, 60 % );
+    padding:    0;
+}
+#mainbox {
+    border:  0;
+    padding: 0;
+}
+#message {
+    border:     0px ;
+    text-color: @separatorcolor;
+    padding:    0px ;
+}
+#textbox {
+    text-color: @foreground;
+}
+#listview {
+    fixed-height: 0;
+    border:       2px dash 0px 0px ;
+    padding:      2px 0px 0px ;
+    spacing:      2px;
+    scrollbar:    false;
+    text-color: @separatorcolor;
+}
+#element {
+    border: 0;
+    padding: 1px;
+}
+#element.normal.normal {
+    text-color: @normal-foreground;
+    background-color: @normal-background;
+}
+#element.normal.urgent {
+    text-color: @urgent-foreground;
+    background-color: @urgent-background;
+}
+#element.normal.active {
+    text-color: @active-foreground;
+    background-color: @active-background;
+}
+#element.selected.normal {
+    text-color: @selected-normal-foreground;
+    background-color: @selected-normal-background;
+}
+#element.selected.urgent {
+    text-color: @selected-urgent-foreground;
+    background-color: @selected-urgent-background;
+}
+#element.selected.active {
+    text-color: @selected-active-foreground;
+    background-color: @selected-active-background;
+}
+#element.alternate.normal {
+    text-color: @alternate-normal-foreground;
+    background-color: @alternate-normal-background;
+}
+#element.alternate.urgent {
+    text-color: @alternate-urgent-foreground;
+    background-color: @alternate-urgent-background;
+}
+#element.alternate.active {
+    text-color: @alternate-active-foreground;
+    background-color: @alternate-active-background;
+}
+#mode-switcher {
+    border: 0px dash 0px 0px ;
+}
+#button selected {
+    text-color: @selected-normal-foreground;
+    background-color: @selected-normal-background;
+}
+#inputbar {
+    spacing: 0;
+    border: 0px;
+    background-color: rgba(0,0,0,0 %);
+    border-color: rgba(0,0,0,0 %);
+}
+#button normal {
+    text-color: @foreground;
+}
+
+#inputbar {
+    children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
+}
+#textbox-prompt-colon {
+    expand:     false;
+    str:        ":";
+    margin:     0px 0.3em 0em 0em ;
+    text-color: @normal-foreground;
+}
+
+
