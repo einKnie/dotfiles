@@ -8,9 +8,14 @@ set $terminal urxvt
 # font
 font pango:DejaVu Sans Mono, FontAwesome5Free 8
 
-# start compton
-# need to kill it because otherwise it will multiply
+# set background
+exec --no-startup-id $HOME/.fehbg &
+
+# start the basics
+# need to kill before starting  because otherwise it will multiply
 # exec_always to restart at i3-restart, useful for checking config changes
+
+# start picom
 exec_always --no-startup-id "killall -q picom; /usr/bin/picom -b --config $HOME/.config/picom/picom.conf"
 
 # start dunst
@@ -99,6 +104,12 @@ set $wsgraphic ""
 set $wsmarkdown ""
 set $wscode ""
 set $wsspotify ""
+set $wstorrent ""
+set $wsmonitor ""
+set $wsoffice ""
+set $wsobsidian ""
+set $wsspotify ""
+set $wsdiscord ""
 
 # also define variables for displays
 # check displays with xrandr -q
@@ -117,7 +128,7 @@ bindsym $mod+8 workspace number $ws8
 bindsym $mod+9 workspace number $ws9
 bindsym $mod+0 workspace number $ws10
 bindsym $mod+e workspace $wsmail
-bindsym $mod+m workspace $wsmusic
+bindsym $mod+b workspace $wsspotify
 bindsym $mod+g workspace $wsgame
 
 
@@ -198,6 +209,9 @@ bindsym $mod+Shift+w exec --no-startup-id $HOME/bin/forecast.sh
 # dynamic ws names
 bindsym $mod+n exec i3-msg rename workspace to $(rofi -dmenu -lines 0 -p 'new name')
 
+# open monitoring
+bindsym $mod+m exec --no-startup-id $HOME/scripts/i3/new_workspace.sh monitoring
+
 # screen scaling
 bindsym $mod+plus exec --no-startup-id $HOME/bin/zoom.sh up
 bindsym $mod+minus exec --no-startup-id $HOME/bin/zoom.sh down
@@ -208,8 +222,11 @@ bindsym $mod+Shift+Return exec --no-startup-id $terminal -e ranger
 # start neovim
 bindsym $mod+Shift+v exec --no-startup-id $terminal -e nvim
 
+# start obsidian
+#bindsym $mod+o exec --no-startup-id obsidian
+
 # set timer
-bindsym $mod+Shift+t exec --no-startup-id reminder --on -t
+bindsym $mod+Shift+t exec --no-startup-id $HOME/bin/reminder --on -t
 
 # timeKeeper
 bindsym $mod+F1 exec --no-startup-id $HOME/bin/timeKeeper -t1 -s
@@ -227,7 +244,7 @@ bindsym $mod+0xfe52 exec --no-startup-id $HOME/bin/timeKeeper -v
 # 'output' sets display, check available output with 'xrandr -q'
 bar {
         i3bar_command i3bar
-        status_command i3status --transparency
+        status_command i3status --transparency -c $HOME/.config/i3status/config
         output $display_secondary
         #tray_output none
         separator_symbol |
@@ -273,9 +290,6 @@ client.focused            #5F676A   #151515   #D0D0D0 #285577     #5F676A
 client.focused_inactive   #151515   #151515   #D0D0D0 #285577     #151515
 client.unfocused          #151515   #151515   #D0D0D0 #285577     #151515
 
-# set background image
-exec --no-startup-id feh --bg-fill $HOME/Pictures/schwammal.jpg
-
 # autostart and wokspace assignment
 
 workspace $ws1 output $display_primary
@@ -287,24 +301,38 @@ workspace $wsgraphic output $display_primary
 workspace $wsmarkdown output $display_primary
 workspace $wscode output $display_primary
 workspace $wsspotify output $display_secondary
+workspace $wstorrent output $display_secondary
+workspace $wsmonitor output $display_secondary
+workspace $wsoffice output $display_primary
+workspace $wsobsidian output $display_primary
 
 assign [class="Thunderbird"] $wsmail
 assign [class="Clementine"] $wsmusic
 
 assign [class="Steam"] $wsgame
 assign [class="Lutris"] $wsgame
+assign [class="Deluge"] $wstorrent
 
 assign [class="Gimp"] $wsgraphic
-# todo inkscape does not work, find out why
-assign [class="Inkscape"] $wsgraphic
-
+assign [instance="libreoffice"] $wsoffice
 assign [class="ghostwriter"] $wsmarkdown
 assign [class="Code"] $wscode
+assign [class="obsidian"] $wsobsidian
 
+# these do not work for some reason, find out why
+assign [class="Inkscape"] $wsgraphic
+assign [class="discord"] $wsdiscord
+
+# workaround for spotify
+# issue was: spotify app does not set the window hints at startup, so i3 can only get it after it is managed
+# https://community.spotify.com/t5/Desktop-Linux/WM-CLASS-window-property-on-Linux/m-p/1315693#M153640
+for_window [class="Spotify"] move to workspace $wsspotify
+
+#doe not work
 for_window [class="reminder"] move window to output $display_secondary
 
-exec --no-startup-id i3-msg 'exec thunderbird; workspace $ws2'
-exec --no-startup-id $HOME/bin/weather.sh
+exec --no-startup-id i3-msg 'exec thunderbird; workspace $ws2; workspace $ws1'
+#exec_once --no-startup-id $HOME/bin/weather.sh
 
 
 # OPTIONS

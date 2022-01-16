@@ -61,7 +61,8 @@ print_help() {
 	echo "create symlinks for all files in this directory"
 	echo "at their relative path in $HOME/"
 	echo
-	echo " -d  ... destination path [default: $HOME/ ]"
+	echo " -s  ... source path [default: $basepath/.config ]"
+	echo " -d  ... destination path [default: $HOME/.config ]"
 	echo " -b  ... create backups of existing files"
 	echo " -n  ... what-if mode"
 	echo " -f  ... force; don't ask before overriding existing files"
@@ -76,11 +77,20 @@ whatif=0
 force=0
 backup=0
 verbose=0
+src="$basedir/.config"
 dst="$HOME/.config"
 
 # get params
 while getopts "d:bnfvh" arg; do
 case $arg in
+	s)
+		if [ -d "$OPTARG" ]; then
+			src="$OPTARG"
+		else
+			echoerr "given source is not a directory"
+			exit 1
+		fi
+		;;
 	d)
 		if [ -d "$OPTARG" ]; then
 			dst="$OPTARG"
@@ -128,10 +138,17 @@ echodbg "dst path:  $dst"
 
 err=0
 
-for file in $(find "$basedir" -type f); do
-	[ "$file" == "$ownpath" ] && continue
+for folder in $(find "$src" -type d); do
+	foldername="${folder/$src/$dst}"
+	echov "local:     $folder"
+	echov "new:       $foldername"
 
-	linkname="${file/$basedir/$dst}"
+	[ -d "$foldername" ] || mkdir -p "$foldername"
+done
+
+for file in $(find "$src" -type f); do
+
+	linkname="${file/$src/$dst}"
 	echov "file:      $file"
 	echov "link:      $linkname"
 

@@ -1,0 +1,60 @@
+! special
+*.foreground:   #d2d8d9
+*.background:   #2b2d2e
+*.cursorColor:  #d2d8d9
+
+! black
+*.color8:       #d2d8d9
+*.color0:       #d2d8d9
+! red
+*.color9:       #af200f
+*.color1:       #b2282c
+
+! green
+*.color10:      #117a1c
+*.color2:       #117a1c
+
+! yellow
+*.color11:      #b9a72f
+*.color3:       #b9a72f
+
+! blue
+*.color12:      #2472ba
+*.color4:       #2472ba
+
+! magenta
+*.color13:      #b82534
+*.color5:       #b82534
+
+! cyan
+*.color14:      #14848b
+*.color6:       #14848b
+
+! white
+*.color15:      #d2d8d9
+*.color7:       #d2d8d9
+
+
+! remove scrollbar and set borders (borders do nothing?)
+URxvt.scrollBar: false
+URxvt.externalBorder: 0
+URxvt.internalBorder: 0
+URxvt.borderLess: false
+
+! set transparency (?)
+URxvt.transparent: true
+URxvt.shading: 40
+URxvt.tintcolor: #1C1C1C
+
+!URxvt.font: xft:7x14:size=8
+!URxvt.font: xft:Monoid Tight:size=8
+!URxvt.font: xft:DejaVu Sans Mono:size=8
+Xft.rgba: none
+Xft.dpi: 96
+URxvt.font: xft:SourceCodePro:size=8.5
+URxvt.perl-ext-common: font-size
+URxvt.cursorUnderline: 1
+
+!Xft.lcdfilter: lcddefault
+!Xft.dpi: 100
+!Xft.antialias: true
