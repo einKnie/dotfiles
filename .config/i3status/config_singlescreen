@@ -14,28 +14,56 @@ general {
   interval = 5
 }
 
-#order += "ethernet _first_"
+order += "read_file airplane_mode"
 order += "wireless _first_"
+order += "ethernet _first_"
 order += "battery all"
 order += "disk /home"
 order += "cpu_temperature 0"
 order += "load"
 order += "memory"
-order += "read_file audioSwitch"
 order += "volume master"
 order += "read_file weather"
 order += "tztime local"
 
-ethernet _first_ {
-  format_up = " %ip"
-  format_down = " "
+read_file airplane_mode {
+  format = "%content"
+  format_bad = ""
+  path = "/home/lila/.airplane_mode"
+  separator = false
+  separator_block_width = 1
   color_good = "#D0D0D0"
 }
 
 wireless _first_ {
-  format_up = "(%quality at %essid) %ip"
-  format_down = " "
+  format_up = " %quality at %essid (%ip)"
+  format_down = ""
+  color_good = "#D0D0D0"
   format_quality = "%d%s"
+}
+
+ethernet _first_ {
+  format_up = " %ip"
+  format_down = ""
+  color_good = "#D0D0D0"
+}
+
+disk "/home" {
+  format = " %avail"
+  low_threshold = 10
+  threshold_type = percentage_free
+  format_below_threshold = "  %avail"
+}
+
+cpu_temperature 0 {
+  format = " %degrees °C"
+  max_threshold = 80
+  format_above_threshold = " %degrees °C"
+  path = "/sys/class/thermal/thermal_zone0/temp"
+}
+
+load {
+  format = " %1min"
 }
 
 battery all {
@@ -48,39 +76,14 @@ battery all {
   status_unk = ""
 }
 
-disk "/home" {
-  format = " %avail"
-  low_threshold = 5
-  threshold_type = percentage_free
-  format_below_threshold = " %avail"
-}
-
-cpu_temperature 0 {
-  format = " %degrees °C"
-  max_threshold = 70
-  format_above_threshold = " %degrees °C"
-  path = "/sys/class/thermal/thermal_zone0/temp"
-}
-
-load {
-  format = " %1min"
-}
-
 memory {
   format = " %used"
   threshold_degraded = "1G"
   format_degraded = " < %available"
 }
 
-read_file audioSwitch {
-  format = "%content"
-  format_bad = ""
-  path = "/home/lila/.audioswitch_status"
-  separator = false
-  separator_block_width = 1
-  color_good = "#D0D0D0"
-  align = "right"
-  min_width = ""
+tztime local {
+  format = " %a %Y %m %d %H:%M:%S"
 }
 
 volume master {
@@ -94,13 +97,7 @@ volume master {
 
 read_file weather {
   format = "%content"
-  format_bad = ""
-  path = "/home/lila/.weather"
+  format_bad = ""
   color_good = "#D0D0D0"
+  path = "/home/lila/.weather"
 }
-
-tztime local {
-  format = " %a %Y %m %d %H:%M:%S"
-  separator = true
-}
-

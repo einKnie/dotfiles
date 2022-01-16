@@ -2,15 +2,18 @@
 
 set $mod Mod4
 
-set $display "eDP-1"
 
+set $terminal urxvt
+#exec --no-startup-id setxkbmap de
+# enable touchpad tap
+exec --no-startup-id xinput set-prop 13 307 1
 
 # set background image
-exec --no-startup-id feh --bg-fill $HOME/Pictures/schwammal.jpg
+#exec --no-startup-id feh --bg-fill $HOME/Pictures/schwammal.png
 #exec --no-startup-id $HOME/.fehbg
 
-# st resolutione
-exec --no-startup-id xrandr --output $display --mode 1920x1080 && $HOME/.fehbg
+# set resolution
+exec --no-startup-id xrandr --output eDP1 --mode 1920x1080 && $HOME/.fehbg
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
@@ -23,14 +26,22 @@ font pango:DejaVu Sans Mono, FontAwesome5Free 8
 # start compton
 # need to kill it because otherwise it will multiply
 # exec_always to restart at i3-restart, useful for checking config changes
-exec_always --no-startup-id "killall -q compton; /usr/bin/compton -b --config $HOME/.config/compton/compton.conf"
+#exec_always --no-startup-id "killall -q picom; /usr/bin/picom  --config $HOME/.config/picom/picom.conf"
 
-# The combination of xss-lock, nm-applet and pactl is a popular choice, so
-# they are included here as an example. Modify as you see fit.
+# start dunst
+exec_always --no-startup-id "killall -q dunst; /usr/bin/dunst -config $HOME/.config/dunst/dunstrc"
+
+# start redshift for night light
+#exec --no-startup-id redshift
 
 # xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
 # screen before suspend. Use loginctl lock-session to lock your screen.
-bindsym $mod+l exec --no-startup-id i3lock --nofork -i $HOME/Pictures/schwammal_small.png -u -t -c 1c1c1c -e
+exec --no-startup-id xss-lock -l /home/lila/scripts/lock_before_suspend.sh
+#bindsym $mod+l exec --no-startup-id i3lock --nofork -i $HOME/Pictures/schwammal_small.png -u -t -c 1c1c1c -e
+bindsym $mod+l exec --no-startup-id betterlockscreen -l dim -t ""
+
+# automatic lockscreen: start xautolock to autmatically lock the screen after inactivity
+#exec_always --no-startup-id xautolock -locker $HOME/bin/lockscreen -time 5 -detectsleep
 
 # NetworkManager is the most popular way to manage wireless networks on Linux,
 # and nm-applet is a desktop environment-independent system tray GUI for it.
@@ -40,7 +51,7 @@ bindsym $mod+l exec --no-startup-id i3lock --nofork -i $HOME/Pictures/schwammal_
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec --no-startup-id urxvt256c
+bindsym $mod+Return exec --no-startup-id $terminal
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -100,8 +111,11 @@ set $ws8 "8"
 set $ws9 "9"
 set $ws10 "10"
 set $wsmail ""
-set $wsmusic ""
-set $wsgame ""
+
+# also define variables for displays
+# check displays with xrandr -q
+#set $display_primary "DP-5"
+#set $display_secondary "DP-3"
 
 # switch to workspace
 bindsym $mod+1 workspace number $ws1
@@ -115,8 +129,7 @@ bindsym $mod+8 workspace number $ws8
 bindsym $mod+9 workspace number $ws9
 bindsym $mod+0 workspace number $ws10
 bindsym $mod+e workspace $wsmail
-bindsym $mod+m workspace $wsmusic
-bindsym $mod+g workspace $wsgame
+
 
 # move focused container to workspace
 bindsym $mod+Shift+1 move container to workspace number $ws1
@@ -140,6 +153,7 @@ bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'Do you really want to exit i
 # resize window (you can also use the mouse for that)
 mode "resize" {
         # These bindings trigger as soon as you enter the resize mode
+
 
         # Pressing left will shrink the window’s width.
         # Pressing right will grow the window’s width.
@@ -168,38 +182,57 @@ bindsym $mod+r mode "resize"
 #
 
 # keybindings
-# find key name with xev
+# find key name with xev 
 
 # switch audio output
 # this script also writes current setting to file so it can be read by i3status
-bindsym F9 exec --no-startup-id $HOME/bin/writeAudioSwitch.sh
+#bindsym F9 exec --no-startup-id $HOME/bin/writeAudioSwitch.sh
+#"amixer -c 0  cset iface=MIXER,name='Front Panel Playback Switch' toggle"
 
 # mute, volume++, volume--
-bindsym XF86AudioMute exec --no-startup-id amixer sset Master toggle
+bindsym XF86AudioMute exec --no-startup-id amixer sset Master toggle 
 bindsym XF86AudioLowerVolume exec --no-startup-id amixer sset Master 1%-
 bindsym XF86AudioRaiseVolume exec --no-startup-id amixer sset Master 1%+
 
-# add support for brightness control
+# add support for brightness control 
 bindsym XF86MonBrightnessDown exec --no-startup-id $HOME/bin/brightness.sh down
 bindsym XF86MonBrightnessUp exec --no-startup-id $HOME/bin/brightness.sh up
 
-# download the audio of whatever youtube link is in the clipboard right now
-bindsym $mod+shift+d exec --no-startup-id $HOME/bin/yt-download-audio.sh
+# flight mode
+bindsym XF86RFKill exec --no-startup-id $HOME/scripts/airplane.sh
 
 # show a 7-day weather forecast
 bindsym $mod+Shift+w exec --no-startup-id $HOME/bin/forecast.sh
 
-# flight mode
-#bindsym XF86RFKill exec --no-startup-id
+# start ranger
+bindsym $mod+Shift+Return exec --no-startup-id $terminal -e ranger
+
+# start neovim
+bindsym $mod+Shift+v exec --no-startup-id $terminal -e nvim
+
+# set timer
+bindsym $mod+Shift+t exec --no-startup-id $HOME/bin/reminder.sh --on -t
+
+# timeKeeper
+bindsym $mod+F1 exec --no-startup-id $HOME/bin/timeKeeper -t1 -s
+bindsym $mod+F2 exec --no-startup-id $HOME/bin/timeKeeper -t2 -s
+bindsym $mod+F3 exec --no-startup-id $HOME/bin/timeKeeper -t3 -s
+bindsym $mod+F4 exec --no-startup-id $HOME/bin/timeKeeper -t4 -s
+bindsym $mod+F5 exec --no-startup-id $HOME/bin/timeKeeper -t5 -s
+bindsym $mod+Escape exec --no-startup-id $HOME/bin/timeKeeper -q
+bindsym $mod+Print exec --no-startup-id $HOME/bin/timeKeeper -x
+bindsym $mod+0xfe52 exec --no-startup-id $HOME/bin/timeKeeper -v
 
 # bar configuration
 
-# i3bar
+# i3bar on secondary display 
+# 'output DP-3' sets display, check available output with 'xrandr -q'
 bar {
-  i3bar_command i3bar
-  status_command i3status --transparency -c $HOME/.config/i3status/config_singlescreen
-  separator_symbol |
-  colors {
+        i3bar_command i3bar
+        status_command i3status --transparency
+        #output $display_secondary
+        #tray_output none 
+        colors {
           background #18181800
           statusline #D0D0D000
           separator  #D0D0D050
@@ -208,8 +241,9 @@ bar {
           active_workspace   #3F3F3F20 #15151500 #D0D0D020
           inactive_workspace #15151520 #3F3F3F00 #D0D0D020
           urgent_workspace   #15151520 #15151500 #B2282C20
-  }
+        }
 }
+
 
 # other, misc
 
@@ -223,19 +257,10 @@ client.focused_inactive   #151515   #151515   #D0D0D0 #285577     #151515
 client.unfocused          #151515   #151515   #D0D0D0 #285577     #151515
 
 
-# autostart
-assign [class="Thunderbird"] $wsmail
-assign [class="Clementine"] $wsmusic
-assign [class="Steam"] $wsgame
-
-exec_always --no-startup-id i3-msg 'exec thunderbird; workspace $ws1'
-exec --no-startup-id $HOME/bin/weather.sh
-
-# OPTIONS
-#
 # enable back-and-forth when workspace switching
 workspace_auto_back_and_forth yes
-popup_during_fullscreen smart
 
-# set numlock on startup
-exec --no-startup-id xdotool key --clearmodifiers Num_Lock
+# thunderbird shall always start on wsmail
+assign [class="Thunderbird"] $wsmail
+
+exec --no-startup-id $HOME/bin/weather.sh
