@@ -66,13 +66,6 @@ link_home() {
 	install_config "$src" "$dst"
 }
 
-link_config() {
-	local src="$(cd $basedir/.config; pwd)"
-	local dst="$HOME/.config"
-
-	install_config "$src" "$dst"
-}
-
 print_config() {
 
 	echov "Source:      $src"
@@ -122,15 +115,37 @@ install_config() {
 	return $err
 }
 
+setup_ssh() {
+	echo "setting up ssh key for github interaction"
+	mkdir -p $HOME/.ssh
+	ssh-keygen -t ed25519 -C "einKnie@gmx.at" f $HOME/.ssh/einknie -q -N "" || return 1
+	ssh-add $HOME/.ssh/einknie || return 1
+}
+
 setup_config() {
 	local err=0
 	# do all the things
 
+	# link files from ~/scripts to ~/bin
+	mkdir -p $HOME/bin
+	install_config "$HOME/scripts/" "$HOME/bin/" || { echoerr "failed to link scripts"; ((err++)); }
+
 	# change default shell to bash
-	[ $whatif -eq 0 ] && { chsh /bin/bash || { echoerr "failed to change default shell to bash"; ((err++)); }; }
+	chsh /bin/bash || { echoerr "failed to change default shell to bash"; ((err++)); }
 
 	# set correct screen name
 	update_i3config || { echoerr "failed to update i3 config file"; ((err++)); }
+
+	# setup my own scripts
+	setup_ssh || { echoerr "failed to setup ssh key. aborting."; return 1; }
+	
+	git clone git@github.com:einKnie/assortedScripts.git $HOME/scripts/assortedScripts && { 
+		ln -sf $HOME/scripts/assortedScripts/reminder.sh $HOME/bin/reminder.sh
+	} || { 
+		echoerr "failed to clone scripts repo"; ((err++)); 
+	}
+
+	git clone git@github.com:einKnie/newworkspace.git $HOME/scripts/newworkspace || { echoerr "failed to clone newworkspace repo";  ((err++)); }
 
 	return $err
 }
@@ -159,21 +174,13 @@ update_i3config() {
 
   if [ $is_multi_monitor -eq 1 ]; then
     # replace primary_display and scondary_display in config file
-	if [ $whatif -eq 0 ]; then
-		mv "$HOME/.config/i3/config_multiscreen" "$wmconfig"
-		sed -i.bak -r "s/display_primary \"([A-Za-z0-9\-]*)\"$/display_primary \"$dp1\"/g" "$wmconfig"
-		sed -i.bak -r "s/display_secondary \"([A-Za-z0-9\-]*)\"$/display_secondary \"$dp2\"/g" "$wmconfig"
-	else
-		echov "[what-if] would adapt i3config to multi-monitor setup"
-	fi
+	mv "$HOME/.config/i3/config_multiscreen" "$wmconfig"
+	sed -i.bak -r "s/display_primary \"([A-Za-z0-9\-]*)\"$/display_primary \"$dp1\"/g" "$wmconfig"
+	sed -i.bak -r "s/display_secondary \"([A-Za-z0-9\-]*)\"$/display_secondary \"$dp2\"/g" "$wmconfig"
   else
     # only one monitor. edit single_monitor file
-	if [ $whatif -eq 0 ]; then
-		mv "$HOME/.config/i3/config_singlescreen" "$wmconfig"
-		sed -i.bak -r "s/display \"([A-Za-z0-9\-]*)\"$/display \"$dp1\"/g" "$wmconfig"
-	else
-		echov "[what-if] would adapt i3config to single-monitor setup"
-	fi
+	mv "$HOME/.config/i3/config_singlescreen" "$wmconfig"
+	sed -i.bak -r "s/display \"([A-Za-z0-9\-]*)\"$/display \"$dp1\"/g" "$wmconfig"
   fi
 
 }
@@ -287,7 +294,6 @@ else
 
 	# link all files
 	link_home   || { echoerr "failed to link \$HOME files"; ((err++)); }
-	link_config || { echoerr "failed to link .config files"; ((err++)); }
 	setup_config || { echoerr "failed to adapt ieconfig to current system"; ((err++)); }
 fi
 

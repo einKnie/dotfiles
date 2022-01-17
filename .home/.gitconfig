@@ -1,6 +1,0 @@
-[user]
-	name = einKnie 
-	email = einKnie@gmx.at
-
-[includeIf "gitdir:~/Engramm/Arbeit/aktuelleArbeit/sigmatek/work/"]
-  path = ~/.gitconfig_work
