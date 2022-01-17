@@ -81,7 +81,7 @@ print_config() {
 install_progs() {
 	# this is not generic, works for manjaro
 	proglist="i3-wm i3status i3lock dunst picom rofi \
-	rxvt-unicode feh git vim ttf-font-awesome zenity"
+	rxvt-unicode feh git vim ttf-font-awesome zenity at dolphin thunderbird"
 	if [ $whatif -eq 0 ]; then
 		sudo pacman -S $proglist || { echoerr "failed to install programs"; return 1; }
 	else
