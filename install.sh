@@ -128,7 +128,7 @@ setup_config() {
 
 	# link files from ~/scripts to ~/bin
 	mkdir -p $HOME/bin
-	install_config "$HOME/scripts/" "$HOME/bin/" || { echoerr "failed to link scripts"; ((err++)); }
+	install_config "$basedir/HOME/scripts/" "$HOME/bin/" || { echoerr "failed to link scripts"; ((err++)); }
 
 	# change default shell to bash
 	chsh -s /bin/bash || { echoerr "failed to change default shell to bash"; ((err++)); }
@@ -137,15 +137,15 @@ setup_config() {
 	update_i3config || { echoerr "failed to update i3 config file"; ((err++)); }
 
 	# setup my own scripts
-	setup_ssh || { echoerr "failed to setup ssh key. aborting."; return 1; }
+	#setup_ssh || { echoerr "failed to setup ssh key. aborting."; return 1; }
 	
-	git clone git@github.com:einKnie/assortedScripts.git $HOME/scripts/assortedScripts && { 
+	git clone https://github.com/einKnie/assortedScripts $HOME/scripts/assortedScripts && { 
 		ln -sf $HOME/scripts/assortedScripts/reminder.sh $HOME/bin/reminder.sh
 	} || { 
 		echoerr "failed to clone scripts repo"; ((err++)); 
 	}
 
-	git clone git@github.com:einKnie/newworkspace.git $HOME/scripts/newworkspace || { echoerr "failed to clone newworkspace repo";  ((err++)); }
+	git clone https://github.com/einKnie/newworkspace $HOME/scripts/newworkspace || { echoerr "failed to clone newworkspace repo";  ((err++)); }
 
 	return $err
 }
