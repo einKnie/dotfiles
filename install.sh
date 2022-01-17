@@ -118,7 +118,7 @@ install_config() {
 setup_ssh() {
 	echo "setting up ssh key for github interaction"
 	mkdir -p $HOME/.ssh
-	ssh-keygen -t ed25519 -C "einKnie@gmx.at" f $HOME/.ssh/einknie -q -N "" || return 1
+	ssh-keygen -t ed25519 -C "einKnie@gmx.at" -f $HOME/.ssh/einknie -q || return 1
 	ssh-add $HOME/.ssh/einknie || return 1
 }
 
@@ -131,7 +131,7 @@ setup_config() {
 	install_config "$HOME/scripts/" "$HOME/bin/" || { echoerr "failed to link scripts"; ((err++)); }
 
 	# change default shell to bash
-	chsh /bin/bash || { echoerr "failed to change default shell to bash"; ((err++)); }
+	chsh -s /bin/bash || { echoerr "failed to change default shell to bash"; ((err++)); }
 
 	# set correct screen name
 	update_i3config || { echoerr "failed to update i3 config file"; ((err++)); }

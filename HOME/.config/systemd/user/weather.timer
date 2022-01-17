@@ -1,0 +1,9 @@
+[Unit]
+Description=Check the weather periodically
+
+[Timer]
+OnStartupSec=5sec
+OnUnitActiveSec=5min
+
+[Install]
+WantedBy=timers.target

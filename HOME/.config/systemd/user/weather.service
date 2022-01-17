@@ -1,0 +1,10 @@
+[Unit]
+Description=Query the weather
+
+[Service]
+Type=oneshot
+Environment=DISPLAY=:0
+ExecStart=/home/lila/bin/weather.sh
+
+[Install]
+WantedBy=graphical.target
