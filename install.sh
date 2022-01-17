@@ -5,6 +5,11 @@
 # check if a file already exists (deal with that by user config)
 # and symlink the repo-file to the repective $HOME file location
 
+# todo:
+# - automate the setup
+# - the current state is a quickfix, rethink design
+# - deal with relative paths! - done
+
 debug=0
 basedir="$(cd "$(dirname "$0")"; pwd -P)"
 ownpath="$(realpath "$0")"
@@ -18,7 +23,6 @@ yes_or_no() {
   fi
 }
 
-echodbg() { [ $debug -eq 1 ] && echo "dbg: $1"; }
 echov()   { [ $verbose -eq 1 ] && echo "$1"; }
 echoerr() { cat <<< "error: $@" 1>&2; }
 
@@ -55,37 +59,118 @@ symlink() {
 	return 0
 }
 
+link_home() {
+	local src="$(cd $basedir/HOME; pwd)"
+	local dst="$HOME"
+
+	install_config "$src" "$dst"
+}
+
+link_config() {
+	local src="$(cd $basedir/.config; pwd)"
+	local dst="$HOME/.config"
+
+	install_config "$src" "$dst"
+}
+
+print_config() {
+
+	echov "Source:      $src"
+	echov "Destination: $dst"
+	echov "Using config:"
+	[ $whatif  -eq 1 ] && { echov "  [what if] x"; } || { echov "  [what if] o"; }
+	[ $backup  -eq 1 ] && { echov "  [backup]  x"; } || { echov "  [backup]  o"; }
+	[ $force   -eq 1 ] && { echov "  [force]   x"; } || { echov "  [force]   o"; }
+	[ $verbose -eq 1 ] && { echov "  [verbose] x"; } || { echov "  [verbose] o"; }
+	[ $debug   -eq 1 ] && { echov "  [debug]   x"; }
+}
+
+install_progs() {
+	# this is not generic, works for manjaro
+	proglist="i3-wm i3status i3lock dunst picom rofi \
+	rxvt-unicode feh git vim ttf-font-awesome zenity"
+	if [ $whatif -eq 0 ]; then
+		sudo pacman -S $proglist || { echoerr "failed to install programs"; return 1; }
+	else
+		echov "would install: $proglist"
+	fi
+}
+
+install_config() {
+	local src="$1"
+	local dst="$2"
+	print_config "$src" "$dst"
+
+	err=0
+	for file in $(find "$src" -type f); do
+
+		linkname="${file/$src/$dst}"
+		echov "file:      $file"
+		echov "link:      $linkname"
+
+		if [ $force -eq 0 ] && [ -f "$linkname" ]; then
+			if ! yes_or_no "Overwrite existing file "$linkname"?"; then
+				echov "not overwriting file"
+				continue
+			fi
+		fi
+
+		symlink "$file" "$linkname" || ((err++))
+	done
+
+	echov "all done"
+	return $err
+}
+
 print_help() {
-	echo "$(basename "$0") - usage"
+	echo "$(basename "$0") - link config files"
+	echo "usage:"
 	echo
-	echo "create symlinks for all files in this directory"
-	echo "at their relative path in $HOME/"
-	echo
-	echo " -s  ... source path [default: $basepath/.config ]"
-	echo " -d  ... destination path [default: $HOME/.config ]"
+	echo " -t <type> ... automated mode; possible types are [full, files]*"
+	echo " -s  ... source path"
+	echo " -d  ... destination path"
 	echo " -b  ... create backups of existing files"
 	echo " -n  ... what-if mode"
 	echo " -f  ... force; don't ask before overriding existing files"
 	echo " -v  ... verbose; print info messages"
 	echo " -h  ... print this help"
 	echo
+	echo "* types:"
+	echo "  full - install all necessary programs and available files"
+	echo "  files - install only files, not programs"
 }
 
+###############################################################################
 
 #defaults
 whatif=0
 force=0
 backup=0
 verbose=0
-src="$basedir/.config"
-dst="$HOME/.config"
+type=0
+src=""
+dst=""
 
 # get params
-while getopts "d:bnfvh" arg; do
+while getopts "t:s:d:bnfvh" arg; do
 case $arg in
+	t)
+		case $OPTARG in
+			full)
+				type=1
+				;;
+			files)
+				type=2
+				;;
+			*)
+				echoerr "invalid type argument given"
+				type=0
+				;;
+			esac
+		;;
 	s)
 		if [ -d "$OPTARG" ]; then
-			src="$OPTARG"
+			src="$(cd "$OPTARG" && pwd)"
 		else
 			echoerr "given source is not a directory"
 			exit 1
@@ -93,7 +178,7 @@ case $arg in
 		;;
 	d)
 		if [ -d "$OPTARG" ]; then
-			dst="$OPTARG"
+			dst="$(cd "$OPTARG" && pwd)"
 		else
 			echoerr "given destination is not a directory"
 			exit 1
@@ -124,43 +209,29 @@ if [ $debug -eq 1 ]; then
 	backup=1
 fi
 
-# show configuration
-echov "destination: $dst"
-echov "Using config:"
-[ $whatif -eq 1  ] && { echov "  [what if] x"; } || { echov "  [what if] o"; }
-[ $backup -eq 1  ] && { echov "  [backup]  x"; } || { echov "  [backup]  o"; }
-[ $force -eq 1   ] && { echov "  [force]   x"; } || { echov "  [force]   o"; }
-[ $verbose -eq 1 ] && { echov "  [verbose] x"; } || { echov "  [verbose] o"; }
-[ $debug -eq 1   ] && { echov "  [debug]   x"; }
-
-echodbg "repo path: $basedir"
-echodbg "dst path:  $dst"
+echo "type: $type"
+# quick sanity check
+err=0
+if [ $type -eq 0 ]; then
+	[ -n "$src" ] || { echoerr "source path not set"; ((err++)); }
+	[ -n "$dst" ] || { echoerr "destination path not set"; ((err++)); }
+fi
+[ $err -gt 0 ] && { print_help; exit 1; }
 
 err=0
-
-for folder in $(find "$src" -type d); do
-	foldername="${folder/$src/$dst}"
-	echov "local:     $folder"
-	echov "new:       $foldername"
-
-	[ -d "$foldername" ] || mkdir -p "$foldername"
-done
-
-for file in $(find "$src" -type f); do
-
-	linkname="${file/$src/$dst}"
-	echov "file:      $file"
-	echov "link:      $linkname"
-
-	if [ $force -eq 0 ] && [ -f "$linkname" ]; then
-		if ! yes_or_no "Overwrite existing file "$linkname"?"; then
-			echov "not overwriting file"
-			continue
-		fi
+if [ $type -eq 0 ]; then
+	# just a regular specific file linking
+	# we have src and dst set
+	install_config "$src" "$dst" || { echoerr "failed to link files"; ((err++)); }
+else
+	if [ $type -eq 1 ]; then
+		# install programs
+		install_progs || { echoerr "failed to install programs"; ((err++)); }
 	fi
 
-	symlink "$file" "$linkname" || ((err++))
-done
+	# link all files
+	link_home   || { echoerr "failed to link \$HOME files"; ((err++)); }
+	link_config || { echoerr "failed to link .config files"; ((err++)); }
+fi
 
-echov "all done"
 [ $err -gt 0 ] && exit 1 || exit 0
