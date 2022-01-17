@@ -222,9 +222,6 @@ bindsym $mod+Shift+Return exec --no-startup-id $terminal -e ranger
 # start neovim
 bindsym $mod+Shift+v exec --no-startup-id $terminal -e nvim
 
-# start obsidian
-#bindsym $mod+o exec --no-startup-id obsidian
-
 # set timer
 bindsym $mod+Shift+t exec --no-startup-id $HOME/bin/reminder --on -t
 
@@ -244,7 +241,7 @@ bindsym $mod+0xfe52 exec --no-startup-id $HOME/bin/timeKeeper -v
 # 'output' sets display, check available output with 'xrandr -q'
 bar {
         i3bar_command i3bar
-        status_command i3status --transparency -c $HOME/.config/i3status/config
+        status_command i3status --transparency -c $HOME/.config/i3status/config_primary
         output $display_secondary
         #tray_output none
         separator_symbol |

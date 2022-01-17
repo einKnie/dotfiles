@@ -6,9 +6,9 @@
 # and symlink the repo-file to the repective $HOME file location
 
 # todo:
-# - automate the setup
-# - the current state is a quickfix, rethink design
+# - automate the setup - done
 # - deal with relative paths! - done
+# - maybe even checkout other necessary repos (assorted scripts for example)
 
 debug=0
 basedir="$(cd "$(dirname "$0")"; pwd -P)"
@@ -101,7 +101,7 @@ install_config() {
 	local dst="$2"
 	print_config "$src" "$dst"
 
-	err=0
+	local err=0
 	for file in $(find "$src" -type f); do
 
 		linkname="${file/$src/$dst}"
@@ -120,6 +120,58 @@ install_config() {
 
 	echov "all done"
 	return $err
+}
+
+setup_config() {
+	local err=0
+	# do all the things
+
+	# change default shell to bash
+	[ $whatif -eq 0 ] && { chsh /bin/bash || { echoerr "failed to change default shell to bash"; ((err++)); }; }
+
+	# set correct screen name
+	update_i3config || { echoerr "failed to update i3 config file"; ((err++)); }
+
+	return $err
+}
+
+update_i3config() {
+  local dp1=""
+  local dp2=""
+  local wmconfig="$HOME/.config/i3/config"
+
+  # check display setup
+  if [ $(xrandr | grep -c " connected") -gt 1 ]; then
+    is_multi_monitor=1
+  else
+    is_multi_monitor=0
+  fi
+
+  # get display identifiers
+  var=$(xrandr | grep -e '.*[^s]connected' | sed 's/\( connected.*$\)//g' | sed 's/[\n\t ]/ /g')
+
+  dp1=$(echo $var | cut -f1 -d" ")
+  dp2=$(echo $var | cut -f2 -d" ")
+  echov "primary display: $dp1"
+  if [ $is_multi_monitor -eq 1 ]; then
+    echov "secondary display: $dp2"
+  fi
+
+  if [ $is_multi_monitor -eq 1 ]; then
+    # replace primary_display and scondary_display in config file
+	if [ $whatif -eq 0 ]; then
+		mv "$HOME/.config/i3/config_multiscreen" "$wmconfig"
+		sed -i.bak -r "s/display_primary \"([A-Za-z0-9\-]*)\"$/display_primary \"$dp1\"/g" "$wmconfig"
+		sed -i.bak -r "s/display_secondary \"([A-Za-z0-9\-]*)\"$/display_secondary \"$dp2\"/g" "$wmconfig"
+	fi
+  else
+    # only one monitor. edit single_monitor file
+	if [ $whatif -eq 0 ]; then
+		mv "$HOME/.config/i3/config_singlescreen" "$wmconfig"
+		sed -i.bak -r "s/display \"([A-Za-z0-9\-]*)\"$/display \"$dp1\"/g" "$wmconfig"
+	fi
+  fi
+
 }
 
 print_help() {
@@ -232,6 +284,7 @@ else
 	# link all files
 	link_home   || { echoerr "failed to link \$HOME files"; ((err++)); }
 	link_config || { echoerr "failed to link .config files"; ((err++)); }
+	update_i3config || { echoerr "failed to adapt ieconfig to current system"; ((err++)); }
 fi
 
 [ $err -gt 0 ] && exit 1 || exit 0
