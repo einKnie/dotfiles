@@ -163,12 +163,16 @@ update_i3config() {
 		mv "$HOME/.config/i3/config_multiscreen" "$wmconfig"
 		sed -i.bak -r "s/display_primary \"([A-Za-z0-9\-]*)\"$/display_primary \"$dp1\"/g" "$wmconfig"
 		sed -i.bak -r "s/display_secondary \"([A-Za-z0-9\-]*)\"$/display_secondary \"$dp2\"/g" "$wmconfig"
+	else
+		echov "[what-if] would adapt i3config to multi-monitor setup"
 	fi
   else
     # only one monitor. edit single_monitor file
 	if [ $whatif -eq 0 ]; then
 		mv "$HOME/.config/i3/config_singlescreen" "$wmconfig"
 		sed -i.bak -r "s/display \"([A-Za-z0-9\-]*)\"$/display \"$dp1\"/g" "$wmconfig"
+	else
+		echov "[what-if] would adapt i3config to single-monitor setup"
 	fi
   fi
 
@@ -284,7 +288,7 @@ else
 	# link all files
 	link_home   || { echoerr "failed to link \$HOME files"; ((err++)); }
 	link_config || { echoerr "failed to link .config files"; ((err++)); }
-	update_i3config || { echoerr "failed to adapt ieconfig to current system"; ((err++)); }
+	setup_config || { echoerr "failed to adapt ieconfig to current system"; ((err++)); }
 fi
 
 [ $err -gt 0 ] && exit 1 || exit 0
