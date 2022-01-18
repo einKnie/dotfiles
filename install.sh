@@ -14,6 +14,11 @@ debug=0
 basedir="$(cd "$(dirname "$0")"; pwd -P)"
 ownpath="$(realpath "$0")"
 
+# programs to be installed
+proglist="i3-wm i3status i3lock dunst picom rofi \
+	rxvt-unicode feh git vim ttf-font-awesome zenity \
+	at dolphin thunderbird htop vnstat"
+
 # logging
 echov()   { [ $verbose -eq 1 ] && echo "$1" || return 0; }
 echoerr() { cat <<< "error: $@" 1>&2; }
@@ -75,8 +80,6 @@ print_config() {
 
 install_progs() {
 	# this is not generic, works for manjaro
-	proglist="i3-wm i3status i3lock dunst picom rofi \
-	rxvt-unicode feh git vim ttf-font-awesome zenity at dolphin thunderbird"
 	sudo pacman -S $proglist || { echoerr "failed to install programs"; return 1; }
 }
 
@@ -278,7 +281,7 @@ else
 	fi
 
 	# link all files
-	link_home   || { echoerr "failed to link \$HOME files"; ((err++)); }
+	link_home    || { echoerr "failed to link \$HOME files"; ((err++)); }
 	setup_config || { echoerr "failed to adapt ieconfig to current system"; ((err++)); }
 fi
 
