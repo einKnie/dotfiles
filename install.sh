@@ -14,6 +14,10 @@ debug=0
 basedir="$(cd "$(dirname "$0")"; pwd -P)"
 ownpath="$(realpath "$0")"
 
+# logging
+echov()   { [ $verbose -eq 1 ] && echo "$1" || return 0; }
+echoerr() { cat <<< "error: $@" 1>&2; }
+
 yes_or_no() {
   read -p "$1 [Y/n] " ret
   if [ "$ret" != "N" ] && [ "$ret" != "n" ]; then
@@ -23,39 +27,31 @@ yes_or_no() {
   fi
 }
 
-echov()   { [ $verbose -eq 1 ] && echo "$1"; }
-echoerr() { cat <<< "error: $@" 1>&2; }
-
+# create a symlink of $1 as link $2
+# containing directories are created on the go
 symlink() {
 	local file="$1"
 	local link="$2"
-	local w=""
 	local ret=0
-
-	[ $whatif -eq 1 ] && { w="[what-if] "; } || { w=""; }
 
 	if [ -f "$link" ] ; then
 		if [ $backup -eq 1 ]; then
-			[ $whatif -eq 0 ] && { mv -f "$link" "${link}.bak"; }
-			echov "${w}created backup ${link}.bak"
+			mv -f "$link" "${link}.bak"
+			echov "created backup ${link}.bak"
 		else
-			[ $whatif -eq 0 ] && { rm -f "$link"; }
-			echov "${w}removed existing file $link"
+			rm -f "$link"
+			echov "removed existing file $link"
 		fi
-	else
+	elif [ ! -d "$(dirname "$link")" ]; then
 		# create containing directory in case it also does not exist
-		[ $whatif -eq 0 ] && { mkdir -p "$(dirname "$link")"; }
-		echov "${w}created containing directory $(dirname "$link")"
+		mkdir -p "$(dirname "$link")"
+		echov "created containing directory $(dirname "$link")"
 	fi
 
-	[ $whatif -eq 0 ] && { ln -sf "$file" "$link"; ret=$?; } || { ret=0; }
-	if [ $ret -eq 0 ]; then
-		echov "${w}created symlink to $file at $link"
-	else
-		echoerr "${w}failed to create link to $file at $link"
+	ln -sf "$file" "$link" && { echov "created symlink to $file at $link"; } || {
+		echoerr "failed to create symlink to $file at $link"
 		return 1
-	fi
-
+	}
 	return 0
 }
 
@@ -68,25 +64,20 @@ link_home() {
 
 print_config() {
 
-	echov "Source:      $src"
-	echov "Destination: $dst"
-	echov "Using config:"
-	[ $whatif  -eq 1 ] && { echov "  [what if] x"; } || { echov "  [what if] o"; }
-	[ $backup  -eq 1 ] && { echov "  [backup]  x"; } || { echov "  [backup]  o"; }
-	[ $force   -eq 1 ] && { echov "  [force]   x"; } || { echov "  [force]   o"; }
-	[ $verbose -eq 1 ] && { echov "  [verbose] x"; } || { echov "  [verbose] o"; }
-	[ $debug   -eq 1 ] && { echov "  [debug]   x"; }
+	echo "Source:      $src"
+	echo "Destination: $dst"
+	echo "Using config:"
+	[ $backup  -eq 1 ] && { echo "  [backup]  x"; } || { echo "  [backup]  o"; }
+	[ $force   -eq 1 ] && { echo "  [force]   x"; } || { echo "  [force]   o"; }
+	[ $verbose -eq 1 ] && { echo "  [verbose] x"; } || { echo "  [verbose] o"; }
+	[ $debug   -eq 1 ] && { echo "  [debug]   x"; }
 }
 
 install_progs() {
 	# this is not generic, works for manjaro
 	proglist="i3-wm i3status i3lock dunst picom rofi \
 	rxvt-unicode feh git vim ttf-font-awesome zenity at dolphin thunderbird"
-	if [ $whatif -eq 0 ]; then
-		sudo pacman -S $proglist || { echoerr "failed to install programs"; return 1; }
-	else
-		echov "would install: $proglist"
-	fi
+	sudo pacman -S $proglist || { echoerr "failed to install programs"; return 1; }
 }
 
 install_config() {
@@ -98,8 +89,8 @@ install_config() {
 	for file in $(find "$src" -type f); do
 
 		linkname="${file/$src/$dst}"
-		echov "file:      $file"
-		echov "link:      $linkname"
+		#echov "file:      $file"
+		#echov "link:      $linkname"
 
 		if [ $force -eq 0 ] && [ -f "$linkname" ]; then
 			if ! yes_or_no "Overwrite existing file "$linkname"?"; then
@@ -115,10 +106,11 @@ install_config() {
 	return $err
 }
 
+# key generation works, but must be added to github manually, obvs
 setup_ssh() {
 	echo "setting up ssh key for github interaction"
 	mkdir -p $HOME/.ssh
-	ssh-keygen -t ed25519 -C "einKnie@gmx.at" -f $HOME/.ssh/einknie -q || return 1
+	ssh-keygen -t ed25519 -C "einKnie@gmx.at" -f $HOME/.ssh/einknie -q -N "" || return 1
 	ssh-add $HOME/.ssh/einknie || return 1
 }
 
@@ -136,11 +128,9 @@ setup_config() {
 	# set correct screen name
 	update_i3config || { echoerr "failed to update i3 config file"; ((err++)); }
 
-	# setup my own scripts
-	#setup_ssh || { echoerr "failed to setup ssh key. aborting."; return 1; }
-	
+	# checkout repos	
 	git clone https://github.com/einKnie/assortedScripts $HOME/scripts/assortedScripts && { 
-		ln -sf $HOME/scripts/assortedScripts/reminder.sh $HOME/bin/reminder.sh
+		ln -sf $HOME/scripts/assortedScripts/reminder.sh $HOME/bin/reminder.sh || echoerr "failed to link reminder.sh to \$HOME/bin"
 	} || { 
 		echoerr "failed to clone scripts repo"; ((err++)); 
 	}
@@ -190,10 +180,9 @@ print_help() {
 	echo "usage:"
 	echo
 	echo " -t <type> ... automated mode; possible types are [full, files]*"
-	echo " -s  ... source path"
-	echo " -d  ... destination path"
+	echo " -s  ... source path           (only if no type given)"
+	echo " -d  ... destination path      (only if no type given)"
 	echo " -b  ... create backups of existing files"
-	echo " -n  ... what-if mode"
 	echo " -f  ... force; don't ask before overriding existing files"
 	echo " -v  ... verbose; print info messages"
 	echo " -h  ... print this help"
@@ -206,7 +195,6 @@ print_help() {
 ###############################################################################
 
 #defaults
-whatif=0
 force=0
 backup=0
 verbose=0
@@ -215,7 +203,7 @@ src=""
 dst=""
 
 # get params
-while getopts "t:s:d:bnfvh" arg; do
+while getopts "t:s:d:bfvh" arg; do
 case $arg in
 	t)
 		case $OPTARG in
@@ -249,9 +237,6 @@ case $arg in
 		;;
 	b)
 		backup=1
-		;;
-	n)
-		whatif=1
 		;;
 	f)
 		force=1
