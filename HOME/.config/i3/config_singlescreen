@@ -28,9 +28,9 @@ exec_always --no-startup-id "killall -q dunst; /usr/bin/dunst -config $HOME/.con
 
 # xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
 # screen before suspend. Use loginctl lock-session to lock your screen.
-#exec --no-startup-id xss-lock -l /home/lila/scripts/lock_before_suspend.sh
 bindsym $mod+l exec --no-startup-id i3lock --nofork -u -t -c 000000 -e
 #bindsym $mod+l exec --no-startup-id betterlockscreen -l dim -t ""
+#bindsym $mod+l exec --no-startup-id $HOME/scripts/lockaction.sh
 
 # NetworkManager is the most popular way to manage wireless networks on Linux,
 # and nm-applet is a desktop environment-independent system tray GUI for it.
