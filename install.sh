@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # script should go through every dir or file in repo 
-# repolace $repo_base with $HOME/.config
+# replace $repo_base with $HOME/.config
 # check if a file already exists (deal with that by user config)
 # and symlink the repo-file to the repective $HOME file location
 
@@ -79,7 +79,7 @@ print_config() {
 }
 
 install_progs() {
-	# this is not generic, works for manjaro
+	# this is not generic, works for manjaro/arch
 	sudo pacman -S $proglist || { echoerr "failed to install programs"; return 1; }
 }
 
@@ -92,8 +92,6 @@ install_config() {
 	for file in $(find "$src" -type f); do
 
 		linkname="${file/$src/$dst}"
-		#echov "file:      $file"
-		#echov "link:      $linkname"
 
 		if [ $force -eq 0 ] && [ -f "$linkname" ]; then
 			if ! yes_or_no "Overwrite existing file "$linkname"?"; then
@@ -107,14 +105,6 @@ install_config() {
 
 	echov "all done"
 	return $err
-}
-
-# key generation works, but must be added to github manually, obvs
-setup_ssh() {
-	echo "setting up ssh key for github interaction"
-	mkdir -p $HOME/.ssh
-	ssh-keygen -t ed25519 -C "einKnie@gmx.at" -f $HOME/.ssh/einknie -q -N "" || return 1
-	ssh-add $HOME/.ssh/einknie || return 1
 }
 
 setup_config() {
