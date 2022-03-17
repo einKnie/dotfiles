@@ -3,6 +3,17 @@
 # open a new terminal. if the currently focused window is also a terminal,
 # set pwd of the new one to the current one's.
 
+depends="xdpyinfo xprop urxvt"
+
+# check dependencies
+check_depends() {
+    local err=0
+    for dep in $depends ; do
+        which "$dep" &>/dev/null || { echo "dependency not met: $dep"; ((err++)); }
+    done
+    return $err
+}
+
 is_urxvt() {
     # check if window of given windowId is urxvt
     xprop -id $1
@@ -12,6 +23,9 @@ is_urxvt() {
         return 1
     fi
 }
+
+
+check_depends || exit 1
 
 # get window id of currently focused window
 winId="$(xdpyinfo | grep focus | sed -r 's/^.*(0x[0-9]+)(,|\s).*$/\1/g')"
