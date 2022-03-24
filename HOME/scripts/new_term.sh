@@ -28,7 +28,7 @@ is_urxvt() {
 check_depends || exit 1
 
 # get window id of currently focused window
-winId="$(xdpyinfo | grep focus | sed -r 's/^.*(0x[0-9]+)(,|\s).*$/\1/g')"
+winId="$(xdpyinfo | grep focus | sed -r 's/^.*(0x[0-9a-f]+)(,|\s).*$/\1/g')"
 pid="$(xprop -id $winId | grep PID | cut -d " " -f3)"
 
 if is_urxvt $winId ; then
