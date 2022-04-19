@@ -36,7 +36,8 @@ bindsym $mod+l exec --no-startup-id betterlockscreen -l dim -t ""
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec --no-startup-id $terminal
+bindsym $mod+Return exec --no-startup-id $HOME/bin/new_term
+#bindsym $mod+Return exec --no-startup-id $terminal
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -149,7 +150,7 @@ bindsym $mod+Shift+r restart
 #bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'Do you really want to exit i3?' -B 'Yes, exit i3' 'i3-msg exit'"
 
 # Power menu
-set $sysmenu "  [r]estart - [l]ogout - [s]uspend - re[b]oot - po[w]eroff  "
+set $sysmenu "  [r]estart i3 - [l]ogout - [s]uspend - re[b]oot - po[w]eroff  "
 bindsym $mod+Shift+e mode $sysmenu
 
 mode $sysmenu {
@@ -236,6 +237,9 @@ bindsym $mod+n exec i3-msg rename workspace to $(rofi -dmenu -lines 0 -p 'new na
 
 # open monitoring
 bindsym $mod+m exec --no-startup-id $HOME/scripts/i3/new_workspace.sh monitoring
+
+# toggle screen blanking (screen turning off after 'inactivity'
+bindsym $mod+x exec --no-startup-id $HOME/scripts/xtc.sh
 
 # screen scaling
 #bindsym $mod+plus exec --no-startup-id $HOME/bin/zoom.sh up
