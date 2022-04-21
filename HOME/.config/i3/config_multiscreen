@@ -6,9 +6,10 @@ set $mod Mod4
 set $terminal urxvt
 
 # font
-font pango:DejaVu Sans Mono, FontAwesome5Free 8
+font pango:DejaVu Sans Mono, FontAwesome6Free 8
 
 # set background
+# info: due to an issue with picom, if you want a black bacground call `hsetroot -solid '#000000'` instead of xsetroot
 exec --no-startup-id $HOME/.fehbg &
 
 # start the basics
@@ -38,7 +39,8 @@ bindsym $mod+l exec --no-startup-id i3lock --nofork -i $HOME/Pictures/schwammal_
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec --no-startup-id $terminal
+bindsym $mod+Return exec --no-startup-id $HOME/bin/new_term
+#bindsym $mod+Return exec --no-startup-id $terminal
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -149,7 +151,21 @@ bindsym $mod+Shift+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
 bindsym $mod+Shift+r restart
 # exit i3 (logs you out of your X session)
-bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'Do you really want to exit i3?' -B 'Yes, exit i3' 'i3-msg exit'"
+#bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'Do you really want to exit i3?' -B 'Yes, exit i3' 'i3-msg exit'"
+
+# Power menu
+set $sysmenu "  [r]estart i3 - [l]ogout - [s]uspend - re[b]oot - po[w]eroff  "
+bindsym $mod+Shift+e mode $sysmenu
+
+mode $sysmenu {
+    bindsym r         restart
+    bindsym l         exit
+    bindsym w         exec --no-startup-id systemctl poweroff
+    bindsym b         exec --no-startup-id systemctl reboot
+    bindsym s         exec --no-startup-id systemctl suspend
+    bindsym Return    mode "default"
+    bindsym Escape    mode "default"
+}
 
 # resize window (you can also use the mouse for that)
 mode "resize" {
@@ -181,6 +197,19 @@ bindsym $mod+r mode "resize"
 # CUSTOM
 #
 
+#this is for testin only, really
+# make a submenu for different servers
+# to start on their own workspaces
+set $connect_mode "  1: laptop | 2: cor  "
+mode  $connect_mode {
+  bindsym 1 exec --no-startup-id i3-msg workspace "laptop" && exec $terminal -e ssh laptop ; mode "default"
+  bindsym 2 exec --no-startup-id i3-msg workspace "cor" && exec $terminal -e ssh cor ; mode "default"
+  bindsym Return mode "default"
+  bindsym Escape mode "default"
+  bindsym $mod+c mode "default"
+}
+bindsym $mod+c mode $connect_mode
+
 # keybindings
 # find key name with xev
 
@@ -207,20 +236,24 @@ bindsym $mod+shift+d exec --no-startup-id $HOME/bin/yt-download-audio.sh
 bindsym $mod+Shift+w exec --no-startup-id $HOME/bin/forecast.sh
 
 # dynamic ws names
-bindsym $mod+n exec i3-msg rename workspace to $(rofi -dmenu -lines 0 -p 'new name')
+bindsym $mod+n exec $HOME/bin/rename_ws.sh
+bindsym $mod+Shift+n exec i3-msg rename workspace to $(rofi -dmenu -lines 0 -p 'new name')
 
 # open monitoring
 bindsym $mod+m exec --no-startup-id $HOME/scripts/newworkspace/new_workspace.sh monitoring
 
 # screen scaling
-bindsym $mod+plus exec --no-startup-id $HOME/bin/zoom.sh up
-bindsym $mod+minus exec --no-startup-id $HOME/bin/zoom.sh down
+#bindsym $mod+plus exec --no-startup-id $HOME/bin/zoom.sh up
+#bindsym $mod+minus exec --no-startup-id $HOME/bin/zoom.sh down
 
 # start ranger
 bindsym $mod+Shift+Return exec --no-startup-id $terminal -e ranger
 
 # start neovim
 bindsym $mod+Shift+v exec --no-startup-id $terminal -e nvim
+
+# start obsidian
+#bindsym $mod+o exec --no-startup-id obsidian
 
 # set timer
 bindsym $mod+Shift+t exec --no-startup-id $HOME/bin/reminder.sh --on -t
