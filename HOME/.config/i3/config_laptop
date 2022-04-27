@@ -233,7 +233,8 @@ bindsym XF86RFKill exec --no-startup-id $HOME/scripts/airplane.sh
 bindsym $mod+Shift+w exec --no-startup-id $HOME/bin/forecast.sh
 
 # dynamic ws names
-bindsym $mod+n exec i3-msg rename workspace to $(rofi -dmenu -lines 0 -p 'new name')
+bindsym $mod+n exec $HOME/scripts/rename_ws.sh
+bindsym $mod+Shift+n exec i3-msg rename workspace to $(rofi -dmenu -lines 0 -p 'new name')
 
 # open monitoring
 bindsym $mod+m exec --no-startup-id $HOME/scripts/i3/new_workspace.sh monitoring
