@@ -197,9 +197,12 @@ bindsym $mod+r mode "resize"
 #this is for testin only, really
 # make a submenu for different servers 
 # to start on their own workspaces
-set $connect_mode "  server[1] server[2]  " 
+set $connect_mode "  [s]oma [c]or [r]audio ('2' for .199))" 
 mode  $connect_mode {
-  bindsym 1 exec --no-startup-id i3-msg workspace "server1" && exec $terminal -e ssh cor ; mode "default"
+  bindsym s exec --no-startup-id i3-msg workspace "soma" && exec $terminal -e ssh soma ; mode "default"
+  bindsym c exec --no-startup-id i3-msg workspace "cor" && exec $terminal -e ssh cor ; mode "default"
+  bindsym r exec --no-startup-id i3-msg workspace "raudio" && exec $terminal -e ssh root@192.168.0.22 ; mode "default"
+  bindsym 2 exec --no-startup-id i3-msg workspace "raudio" && exec $terminal -e ssh root@192.168.0.199 ; mode "default"
   bindsym Return mode "default"
   bindsym Escape mode "default"
   bindsym $mod+c mode "default"
