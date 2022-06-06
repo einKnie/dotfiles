@@ -249,6 +249,9 @@ bindsym $mod+x exec --no-startup-id $HOME/scripts/xtc.sh
 #bindsym $mod+plus exec --no-startup-id $HOME/bin/zoom.sh up
 #bindsym $mod+minus exec --no-startup-id $HOME/bin/zoom.sh down
 
+# screenshot
+bindsym $mod+s exec --no-startup-id scrot -D "$DISPLAY" -F $HOME/Pictures/screenshot/%Y-%m-%d_%H-%M_\$a.png
+
 # start ranger
 bindsym $mod+Shift+Return exec --no-startup-id $terminal -e ranger
 
