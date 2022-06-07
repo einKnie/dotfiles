@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+
+# open a new terminal. if the currently focused window is also a terminal,
+# set pwd of the new one to the current one's.
+
+# todo:
+# change this, so it either
+#  * only returns path
+#  * takes terminal emulator of choice as parameter
+# basically this:
+# i never liked replacing my $terminal cll with this script in i3config
+# because it makes it less generic (forced urxvt).
+# so i need/want to be able to set the specific terminal emulator from
+# outside the script.
+# actually, since i need to check if a found window is the terminal
+
+#set -x
+
+term="urxvt"
+depends="xdpyinfo xprop"
+
+# check dependencies
+check_depends() {
+    local err=0
+    for dep in $depends ; do
+        which "$dep" &>/dev/null || { echo "dependency not met: $dep"; ((err++)); }
+    done
+    return $err
+}
+
+is_terminal() {
+    # check if process of giiven pid is the set terminal
+    if [ "$(ps -ax | grep $1 | grep -v grep | grep $term)" != "" ]; then
+        return 0
+    fi
+    return 1
+}
+
+show_help() {
+    echo "help tbd"
+}
+
+
+while getopts "x:h" arg; do
+    case $arg in
+        x)
+            term="$OPTARG"
+            ;;
+        h)
+            show_help
+            exit 0
+            ;;
+        *)
+            echo "Invalid parameter" ; exit 1
+            ;;
+    esac
+done
+
+depends+=" $term"
+check_depends || exit 1
+
+# get window id of currently focused window
+winId="$(xdpyinfo | grep focus | sed -r 's/^.*(0x[0-9a-f]+)(,|\s).*$/\1/g')"
+pid="$(xprop -id $winId | grep PID | cut -d " " -f3)"
+
+if is_terminal $pid ; then
+
+    # get pid of last child that has a cwd
+    found=0
+    last=""
+    tree="$(pstree -lpA $pid)"
+
+    while [ $found -eq 0 ] ;do
+        last="$(echo "$tree" | sed -re 's/^.*---\w+\(([0-9]+)\)(-\+-.*)?$/\1/g')"
+        if [[ "$last" == "$tree" ]]; then
+            # abort when no more results found
+            break
+        fi
+        tree=${tree%---*}
+
+        if [ -e "/proc/$last/cwd" ]; then
+            found=1
+        fi
+    done
+
+    if [ $found -eq 1 ] ;then
+        realpid=$((last))
+
+        if [ -e "/proc/$realpid/cwd" ] ;then
+            echo "$(readlink "/proc/$realpid/cwd")"
+            exit 0
+        fi
+    fi
+fi
+
+echo ""
