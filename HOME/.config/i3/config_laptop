@@ -36,7 +36,8 @@ bindsym $mod+l exec --no-startup-id betterlockscreen -l dim -t ""
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec --no-startup-id $HOME/bin/new_term
+# still not entirely generic though
+bindsym $mod+Return exec --no-startup-id $terminal -cd "$($HOME/bin/get_focused_cwd)"
 #bindsym $mod+Return exec --no-startup-id $terminal
 
 # kill focused window
