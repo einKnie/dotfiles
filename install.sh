@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# script should go through every dir or file in repo 
+# script should go through every dir or file in repo
 # replace $repo_base with $HOME/.config
 # check if a file already exists (deal with that by user config)
 # and symlink the repo-file to the repective $HOME file location
@@ -121,14 +121,15 @@ setup_config() {
 	# set correct screen name
 	update_i3config || { echoerr "failed to update i3 config file"; ((err++)); }
 
-	# checkout repos	
-	git clone https://github.com/einKnie/assortedScripts $HOME/scripts/assortedScripts && { 
+	# checkout repos
+	git clone https://github.com/einKnie/assortedScripts $HOME/scripts/assortedScripts && {
 		ln -sf $HOME/scripts/assortedScripts/reminder.sh $HOME/bin/reminder.sh || echoerr "failed to link reminder.sh to \$HOME/bin"
-	} || { 
-		echoerr "failed to clone scripts repo"; ((err++)); 
+	} || {
+		echoerr "failed to clone scripts repo"; ((err++));
 	}
 
 	git clone https://github.com/einKnie/newworkspace $HOME/scripts/newworkspace || { echoerr "failed to clone newworkspace repo";  ((err++)); }
+	git clone https://github.com/einKnie/ws_mgmt $HOME/scripts/ws_mgmt || { echoerr "failed to clone ws_mgmt repo";  ((err++)); }
 
 	return $err
 }
@@ -226,7 +227,7 @@ case $arg in
 		else
 			echoerr "given destination is not a directory"
 			exit 1
-		fi 
+		fi
 		;;
 	b)
 		backup=1
