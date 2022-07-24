@@ -11,8 +11,7 @@ exec --no-startup-id xinput set-prop 13 307 1
 # set background image
 exec --no-startup-id $HOME/.fehbg
 
-# This font is widely installed, provides lots of unicode glyphs, right-to-left
-# text rendering and scalability on retina/hidpi displays (thanks to pango).
+# fonts
 font pango:DejaVu Sans Mono, FontAwesome5Free 8
 
 # start picom
@@ -40,7 +39,9 @@ bindsym $mod+l exec --no-startup-id i3lock --nofork -u -t -c 000000 -e
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec --no-startup-id $terminal
+# still not entirely generic though
+bindsym $mod+Return exec --no-startup-id $terminal -cd "$($HOME/bin/get_focused_cwd)"
+#bindsym $mod+Return exec --no-startup-id $terminal
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -146,7 +147,7 @@ bindsym $mod+Shift+r restart
 #bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'Do you really want to exit i3?' -B 'Yes, exit i3' 'i3-msg exit'"
 
 # Power menu
-set $sysmenu "  [r]estart - [l]ogout - [s]uspend - re[b]oot - po[w]eroff  "
+set $sysmenu "  [r]estart i3 - [l]ogout - [s]uspend - re[b]oot - po[w]eroff  "
 bindsym $mod+Shift+e mode $sysmenu
 
 mode $sysmenu {
