@@ -11,7 +11,7 @@ exec --no-startup-id xrandr --output eDP1 --mode 1920x1080 && $HOME/.fehbg
 # fonts
 font pango:DejaVu Sans Mono, FontAwesome5Free 8
 
-# start compton
+# start picom
 # need to kill it because otherwise it will multiply
 # exec_always to restart at i3-restart, useful for checking config changes
 #exec_always --no-startup-id "killall -q picom; /usr/bin/picom  --config $HOME/.config/picom/picom.conf"
@@ -109,6 +109,7 @@ set $wsmonitor ""
 set $wsoffice ""
 set $wsobsidian ""
 set $wsspotify ""
+set $wsdiscord ""
 
 # also define variables for displays
 # check displays with xrandr -q
@@ -196,10 +197,11 @@ bindsym $mod+r mode "resize"
 #
 
 #this is for testin only, really
-# make a submenu for different servers 
+# make a submenu for different servers
 # to start on their own workspaces
-set $connect_mode "  [s]oma [c]or [r]audio ('2' for .199))" 
+set $connect_mode " [w]ake [s]oma [c]or [r]audio ('2' for .199))"
 mode  $connect_mode {
+  bindsym w exec --no startup id i3-msg workspace "soma" && exec $terminal -e wake-soma ; mode "default"
   bindsym s exec --no-startup-id i3-msg workspace "soma" && exec $terminal -e ssh soma ; mode "default"
   bindsym c exec --no-startup-id i3-msg workspace "cor" && exec $terminal -e ssh cor ; mode "default"
   bindsym r exec --no-startup-id i3-msg workspace "raudio" && exec $terminal -e ssh root@192.168.0.22 ; mode "default"
@@ -210,8 +212,21 @@ mode  $connect_mode {
 }
 bindsym $mod+c mode  $connect_mode
 
+set $workspace_mode " [k]ill | re[n]ame | move ↔ | [s]creenshot"
+mode $workspace_mode {
+  bindsym k exec --no-startup-id $HOME/scripts/ws_mgmt/kill_all.sh ; mode "default"
+  bindsym Left move workspace to output left ; mode "default"
+  bindsym Right move workspace to output right ; mode "default"
+  bindsym n exec --no-startup-id $HOME/scripts/ws_mgmt/ws_rename.sh ; mode "default"
+  bindsym s exec --no-startup-id scrot -D $DISPLAY -F $HOME/Pictures/screenshot/%Y-%m-%d_%H-%M_\$a.png ; mode "default"
+  bindsym Return mode "default"
+  bindsym Escape mode "default"
+  bindsym $mod+s mode "default"
+}
+bindsym $mod+s mode $workspace_mode
+
 # keybindings
-# find key name with xev 
+# find key name with xev
 
 # switch audio output
 # this script also writes current setting to file so it can be read by i3status
@@ -219,11 +234,11 @@ bindsym $mod+c mode  $connect_mode
 #"amixer -c 0  cset iface=MIXER,name='Front Panel Playback Switch' toggle"
 
 # mute, volume++, volume--
-bindsym XF86AudioMute exec --no-startup-id amixer sset Master toggle 
+bindsym XF86AudioMute exec --no-startup-id amixer sset Master toggle
 bindsym XF86AudioLowerVolume exec --no-startup-id amixer sset Master 1%-
 bindsym XF86AudioRaiseVolume exec --no-startup-id amixer sset Master 1%+
 
-# add support for brightness control 
+# add support for brightness control
 bindsym XF86MonBrightnessDown exec --no-startup-id $HOME/bin/brightness.sh down
 bindsym XF86MonBrightnessUp exec --no-startup-id $HOME/bin/brightness.sh up
 
@@ -249,9 +264,6 @@ bindsym $mod+x exec --no-startup-id $HOME/scripts/xtc.sh
 # screen scaling
 #bindsym $mod+plus exec --no-startup-id $HOME/bin/zoom.sh up
 #bindsym $mod+minus exec --no-startup-id $HOME/bin/zoom.sh down
-
-# screenshot
-bindsym $mod+s exec --no-startup-id scrot -D "$DISPLAY" -F $HOME/Pictures/screenshot/%Y-%m-%d_%H-%M_\$a.png
 
 # start ranger
 bindsym $mod+Shift+Return exec --no-startup-id $terminal -e ranger
