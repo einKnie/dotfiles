@@ -190,7 +190,7 @@ bindsym $mod+Shift+Right move right
 ###############################################################################
 
 # start a terminal (in same cwd as current terminal, if any)
-bindsym $mod+Return exec --no-startup-id $HOME/bin/new_term
+bindsym $mod+Return exec --no-startup-id $terminal -cd "$($HOME/bin/get_focused_cwd)"
 
 # rofi d-menu
 bindsym $mod+d exec --no-startup-id rofi -show run -lines 4
