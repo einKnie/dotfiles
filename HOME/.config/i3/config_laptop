@@ -1,92 +1,53 @@
 # i3 config for laptop
 
+###############################################################################
+# VARIABLES
+###############################################################################
+
 set $mod Mod4
 
-# variables
+# set term as variable for quick switching
 set $terminal urxvt
 
-# set resolution
-exec --no-startup-id xrandr --output eDP1 --mode 1920x1080 && $HOME/.fehbg
+###############################################################################
+# GENERAL I3 OPTIONS
+###############################################################################
 
 # fonts
-font pango:DejaVu Sans Mono, FontAwesome5Free 8
-
-# start picom
-# need to kill it because otherwise it will multiply
-# exec_always to restart at i3-restart, useful for checking config changes
-#exec_always --no-startup-id "killall -q picom; /usr/bin/picom  --config $HOME/.config/picom/picom.conf"
-
-# start dunst
-exec_always --no-startup-id "killall -q dunst; /usr/bin/dunst -config $HOME/.config/dunst/dunstrc"
-
-# xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
-# screen before suspend. Use loginctl lock-session to lock your screen.
-exec --no-startup-id xss-lock -l /home/lila/scripts/lock_before_suspend.sh
-#bindsym $mod+l exec --no-startup-id i3lock --nofork -i $HOME/Pictures/schwammal_small.png -u -t -c 1c1c1c -e
-bindsym $mod+l exec --no-startup-id betterlockscreen -l dim -t ""
-
-# automatic lockscreen: start xautolock to autmatically lock the screen after inactivity
-#exec_always --no-startup-id xautolock -locker $HOME/bin/lockscreen -time 5 -detectsleep
-
-# NetworkManager is the most popular way to manage wireless networks on Linux,
-# and nm-applet is a desktop environment-independent system tray GUI for it.
-#exec --no-startup-id nm-applet
+font pango:DejaVu Sans Mono, FontAwesome6Free 8
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
 
-# start a terminal
-# still not entirely generic though
-bindsym $mod+Return exec --no-startup-id $terminal -cd "$($HOME/bin/get_focused_cwd)"
-#bindsym $mod+Return exec --no-startup-id $terminal
+workspace_auto_back_and_forth yes
+popup_during_fullscreen smart
 
-# kill focused window
-bindsym $mod+Shift+q kill
+# hide all borders
+hide_edge_borders both
+default_border none
+default_floating_border none
 
-# start rofi
-bindsym $mod+d exec --no-startup-id rofi -show run -lines 4
-bindsym $mod+Tab exec --no-startup-id rofi -show window -lines 6
+###############################################################################
+# STARTUP
+###############################################################################
 
-# change focus
-bindsym $mod+Left focus left
-bindsym $mod+Down focus down
-bindsym $mod+Up focus up
-bindsym $mod+Right focus right
+# set resolution && background
+exec --no-startup-id xrandr --output eDP1 --mode 1920x1080 && $HOME/.fehbg
 
-# move focused window
-bindsym $mod+Shift+Left move left
-bindsym $mod+Shift+Down move down
-bindsym $mod+Shift+Up move up
-bindsym $mod+Shift+Right move right
+# start picom (restart always - need to kill manually to avoid multiples)
+#exec_always --no-startup-id "killall -q picom; /usr/bin/picom  --config $HOME/.config/picom/picom.conf"
 
-# split in horizontal orientation
-bindsym $mod+h split h
+# start dunst (restart always - need to kill manually to avoid multiples)
+exec_always --no-startup-id "killall -q dunst; /usr/bin/dunst -config $HOME/.config/dunst/dunstrc"
 
-# split in vertical orientation
-bindsym $mod+v split v
+# set numlock on startup
+exec --no-startup-id xdotool key --clearmodifiers Num_Lock
 
-# enter fullscreen mode for the focused container
-bindsym $mod+f fullscreen toggle
+###############################################################################
+# WORKSPACES
+###############################################################################
 
-# change container layout (stacked, tabbed, toggle split)
-#bindsym $mod+s layout stacking
-#bindsym $mod+w layout tabbed
-bindsym $mod+w layout toggle split
-
-# toggle tiling / floating
-bindsym $mod+Shift+space floating toggle
-
-# change focus between tiling / floating windows
-bindsym $mod+space focus mode_toggle
-
-# focus the parent container
-bindsym $mod+a focus parent
-
-# focus the child container
-#bindsym $mod+d focus child
-
-# Define names for default workspaces for which we configure key bindings later on.
-# We use variables to avoid repeating the names in multiple places.
+# workspace names
 set $ws1 "1"
 set $ws2 "2"
 set $ws3 "3"
@@ -111,10 +72,23 @@ set $wsobsidian ""
 set $wsspotify ""
 set $wsdiscord ""
 
-# also define variables for displays
-# check displays with xrandr -q
-#set $display_primary "DP-5"
-#set $display_secondary "DP-3"
+# assign applications to workspaces
+assign [class="Inkscape"]       $wsgraphic
+assign [class="Gimp"]           $wsgraphic
+assign [class="ghostwriter"]    $wsmarkdown
+assign [class="Code"]           $wscode
+assign [instance="libreoffice"] $wsoffice
+assign [class="Thunderbird"]    $wsmail
+assign [class="Steam"]          $wsgame
+assign [class="Lutris"]         $wsgame
+assign [class="Deluge"]         $wstorrent
+assign [class="discord"]        $wsdiscord
+assign [class="obsidian"]       $wsobsidian
+
+# workaround
+# issue was: spotify app does not set the window hints at startup, so i3 can only get it after it is managed
+# https://community.spotify.com/t5/Desktop-Linux/WM-CLASS-window-property-on-Linux/m-p/1315693#M153640
+for_window [class="Spotify"] move to workspace $wsspotify
 
 # switch to workspace
 bindsym $mod+1 workspace number $ws1
@@ -128,7 +102,6 @@ bindsym $mod+8 workspace number $ws8
 bindsym $mod+9 workspace number $ws9
 bindsym $mod+0 workspace number $ws10
 bindsym $mod+e workspace $wsmail
-#bindsym $mod+m workspace $wsmusic
 bindsym $mod+g workspace $wsgame
 
 
@@ -144,94 +117,70 @@ bindsym $mod+Shift+8 move container to workspace number $ws8
 bindsym $mod+Shift+9 move container to workspace number $ws9
 bindsym $mod+Shift+0 move container to workspace number $ws10
 
-# reload the configuration file
+###############################################################################
+# I3 KEYBINDINGS (find key name with xev)
+###############################################################################
+
+# reload/restart i3 [deprecated, use sysmenu]
 bindsym $mod+Shift+c reload
-# restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
 bindsym $mod+Shift+r restart
-# exit i3 (logs you out of your X session)
-#bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'Do you really want to exit i3?' -B 'Yes, exit i3' 'i3-msg exit'"
 
-# Power menu
-set $sysmenu "  [r]estart i3 - [l]ogout - [s]uspend - re[b]oot - po[w]eroff  "
-bindsym $mod+Shift+e mode $sysmenu
+# containers
+# kill container
+bindsym $mod+Shift+q kill
 
-mode $sysmenu {
-    bindsym r         restart
-    bindsym l         exit
-    bindsym w         exec --no-startup-id systemctl poweroff
-    bindsym b         exec --no-startup-id systemctl reboot
-    bindsym s         exec --no-startup-id systemctl suspend
-    bindsym Return    mode "default"
-    bindsym Escape    mode "default"
-}
+# toggle fullscreen/floating/layout
+bindsym $mod+f fullscreen toggle
+bindsym $mod+Shift+space floating toggle
+bindsym $mod+w layout toggle split
 
-# resize window (you can also use the mouse for that)
-mode "resize" {
-        # These bindings trigger as soon as you enter the resize mode
+# focus floating
+bindsym $mod+space focus mode_toggle
 
+# next split horizontal/vertical
+bindsym $mod+h split h
+bindsym $mod+v split v
 
-        # Pressing left will shrink the window’s width.
-        # Pressing right will grow the window’s width.
-        # Pressing up will shrink the window’s height.
-        # Pressing down will grow the window’s height.
-        bindsym j resize shrink width 10 px or 10 ppt
-        bindsym k resize grow height 10 px or 10 ppt
-        bindsym l resize shrink height 10 px or 10 ppt
-        bindsym odiaeresis resize grow width 10 px or 10 ppt
+# change focus
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+bindsym $mod+a focus parent
+#bindsym $mod+d focus child
 
-        # same bindings, but for the arrow keys
-        bindsym Left resize shrink width 10 px or 10 ppt
-        bindsym Down resize grow height 10 px or 10 ppt
-        bindsym Up resize shrink height 10 px or 10 ppt
-        bindsym Right resize grow width 10 px or 10 ppt
+# move window
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
 
-        # back to normal: Enter or Escape or $mod+r
-        bindsym Return mode "default"
-        bindsym Escape mode "default"
-        bindsym $mod+r mode "default"
-}
+###############################################################################
+# PROGRAMS KEYBINDINGS (find key name with xev)
+###############################################################################
 
-bindsym $mod+r mode "resize"
+# start a terminal (in same cwd as current terminal, if any)
+bindsym $mod+Return exec --no-startup-id $terminal -cd "$($HOME/bin/get_focused_cwd)"
+#bindsym $mod+Return exec --no-startup-id $terminal
 
-# CUSTOM
-#
+# rofi d-menu
+bindsym $mod+d exec --no-startup-id rofi -show run -lines 4
+bindsym $mod+Tab exec --no-startup-id rofi -show window -lines 6
 
-#this is for testin only, really
-# make a submenu for different servers
-# to start on their own workspaces
-set $connect_mode " [w]ake [s]oma [c]or [r]audio ('2' for .199))"
-mode  $connect_mode {
-  bindsym w exec --no startup id i3-msg workspace "soma" && exec $terminal -e wake-soma ; mode "default"
-  bindsym s exec --no-startup-id i3-msg workspace "soma" && exec $terminal -e ssh soma ; mode "default"
-  bindsym c exec --no-startup-id i3-msg workspace "cor" && exec $terminal -e ssh cor ; mode "default"
-  bindsym r exec --no-startup-id i3-msg workspace "raudio" && exec $terminal -e ssh root@192.168.0.22 ; mode "default"
-  bindsym 2 exec --no-startup-id i3-msg workspace "raudio" && exec $terminal -e ssh root@192.168.0.199 ; mode "default"
-  bindsym Return mode "default"
-  bindsym Escape mode "default"
-  bindsym $mod+c mode "default"
-}
-bindsym $mod+c mode  $connect_mode
+# start ranger
+bindsym $mod+Shift+Return exec --no-startup-id $terminal -e ranger
 
-set $workspace_mode " [k]ill | re[n]ame | move ↔ | [s]creenshot"
-mode $workspace_mode {
-  bindsym k exec --no-startup-id $HOME/scripts/ws_mgmt/kill_all.sh ; mode "default"
-  bindsym Left move workspace to output left ; mode "default"
-  bindsym Right move workspace to output right ; mode "default"
-  bindsym n exec --no-startup-id $HOME/scripts/ws_mgmt/ws_rename.sh ; mode "default"
-  bindsym s exec --no-startup-id scrot -D $DISPLAY -F $HOME/Pictures/screenshot/%Y-%m-%d_%H-%M_\$a.png ; mode "default"
-  bindsym Return mode "default"
-  bindsym Escape mode "default"
-  bindsym $mod+s mode "default"
-}
-bindsym $mod+s mode $workspace_mode
+# start neovim
+bindsym $mod+Shift+v exec --no-startup-id $terminal -e nvim
 
-# keybindings
-# find key name with xev
+###############################################################################
+# PERSONAL KEYBINDINGS (find key name with xev)
+###############################################################################
 
-# switch audio output
-# this script also writes current setting to file so it can be read by i3status
-#bindsym F9 exec --no-startup-id $HOME/bin/writeAudioSwitch.sh
-#"amixer -c 0  cset iface=MIXER,name='Front Panel Playback Switch' toggle"
+# lock screen before suspend
+exec --no-startup-id xss-lock -l /home/lila/scripts/lock_before_suspend.sh
+# use betterlockscreen on laptop
+bindsym $mod+l exec --no-startup-id betterlockscreen -l dim -t ""
 
 # mute, volume++, volume--
 bindsym XF86AudioMute exec --no-startup-id amixer sset Master toggle
@@ -252,27 +201,16 @@ bindsym XF86RFKill exec --no-startup-id $HOME/scripts/airplane.sh
 bindsym $mod+Shift+w exec --no-startup-id $HOME/bin/forecast.sh
 
 # dynamic ws names
-bindsym $mod+n exec $HOME/scripts/rename_ws.sh
+# rename keeping ws number [deprecated, use ws-mgmt mode]
+bindsym $mod+n exec $HOME/bin/rename_ws.sh
+# rename dropping ws number
 bindsym $mod+Shift+n exec i3-msg rename workspace to $(rofi -dmenu -lines 0 -p 'new name')
 
 # open monitoring
 bindsym $mod+m exec --no-startup-id $HOME/scripts/i3/new_workspace.sh monitoring
 
-# toggle screen blanking (screen turning off after 'inactivity'
+# toggle screen blanking (screen turning off after 'inactivity')
 bindsym $mod+x exec --no-startup-id $HOME/scripts/xtc.sh
-
-# screen scaling
-#bindsym $mod+plus exec --no-startup-id $HOME/bin/zoom.sh up
-#bindsym $mod+minus exec --no-startup-id $HOME/bin/zoom.sh down
-
-# start ranger
-bindsym $mod+Shift+Return exec --no-startup-id $terminal -e ranger
-
-# start neovim
-bindsym $mod+Shift+v exec --no-startup-id $terminal -e nvim
-
-# start obsidian
-bindsym $mod+o exec --no-startup-id obsidian
 
 # set timer
 bindsym $mod+Shift+t exec --no-startup-id $HOME/bin/reminder.sh --on -t
@@ -287,76 +225,84 @@ bindsym $mod+Escape exec --no-startup-id $HOME/bin/timeKeeper -q
 bindsym $mod+Print exec --no-startup-id $HOME/bin/timeKeeper -x
 bindsym $mod+0xfe52 exec --no-startup-id $HOME/bin/timeKeeper -v
 
-# bar configuration
+###############################################################################
+# MODES
+###############################################################################
 
-# i3bar on secondary display 
-# 'output DP-3' sets display, check available output with 'xrandr -q'
-bar {
-        i3bar_command i3bar
-        status_command i3status --transparency
-        #output $display_secondary
-        #tray_output none 
-        colors {
-          background #18181800
-          statusline #D0D0D000
-          separator  #D0D0D050
-          # class            #border   #bground  #text
-          focused_workspace  #FFFFFF20 #15151500 #D0D0D020
-          active_workspace   #3F3F3F20 #15151500 #D0D0D020
-          inactive_workspace #15151520 #3F3F3F00 #D0D0D020
-          urgent_workspace   #15151520 #15151500 #B2282C20
-        }
+# RESIZE
+mode "resize" {
+  bindsym Left resize shrink width 10 px or 10 ppt
+  bindsym Down resize grow height 10 px or 10 ppt
+  bindsym Up resize shrink height 10 px or 10 ppt
+  bindsym Right resize grow width 10 px or 10 ppt
+
+  bindsym Return mode "default"
+  bindsym Escape mode "default"
+  bindsym $mod+r mode "default"
 }
+bindsym $mod+r mode "resize"
 
+# POWER
+set $sysmenu "  [r]estart i3 - [l]ogout - [s]uspend - re[b]oot - po[w]eroff  "
+mode $sysmenu {
+  bindsym r         restart
+  bindsym l         exit
+  bindsym s         exec systemctl suspend
+  bindsym b         exec systemctl reboot
+  bindsym w         exec systemctl poweroff
 
-# other, misc
+  bindsym Return    mode "default"
+  bindsym Escape    mode "default"
+}
+bindsym $mod+q mode $sysmenu
 
-# hide all borders
-hide_edge_borders both
-default_border pixel 0
+# SSH
+set $connect_mode " [w]ake [s]oma [c]or [r]audio ('2' for .199))"
+mode  $connect_mode {
+  bindsym w         workspace "soma" ;    exec $terminal -e wake-soma ; mode "default"
+  bindsym s         workspace "soma" ;    exec $terminal -e ssh soma ; mode "default"
+  bindsym c         workspace "cor"  ;    exec $terminal -e ssh cor ; mode "default"
+  bindsym r         workspace "raudio" ;  exec $terminal -e ssh root@192.168.0.22 ; mode "default"
+  bindsym 2         workspace "raudio" ;  exec $terminal -e ssh root@192.168.0.199 ; mode "default"
 
-# class                   border    bground   text    indicator   child_border
-client.focused            #5F676A   #151515   #D0D0D0 #285577     #5F676A
-client.focused_inactive   #151515   #151515   #D0D0D0 #285577     #151515
-client.unfocused          #151515   #151515   #D0D0D0 #285577     #151515
+  bindsym Return    mode "default"
+  bindsym Escape    mode "default"
+  bindsym $mod+c    mode "default"
+}
+bindsym $mod+c mode  $connect_mode
 
+# WS MANAGEMENT
+set $workspace_mode " [k]ill | re[n]ame | move ↔ | [s]creenshot"
+mode $workspace_mode {
+  bindsym k         exec --no-startup-id $HOME/scripts/ws_mgmt/kill_all.sh ; mode "default"
+  bindsym Left      move workspace to output left ; mode "default"
+  bindsym Right     move workspace to output right ; mode "default"
+  bindsym n         exec --no-startup-id $HOME/scripts/ws_mgmt/ws_rename.sh ; mode "default"
+  bindsym s         exec --no-startup-id scrot -D $DISPLAY -F $HOME/Pictures/screenshot/%Y-%m-%d_%H-%M_\$a.png ; mode "default"
 
-# enable back-and-forth when workspace switching
-workspace_auto_back_and_forth yes
+  bindsym Return    mode "default"
+  bindsym Escape    mode "default"
+  bindsym $mod+s    mode "default"
+}
+bindsym $mod+s mode $workspace_mode
 
-# thunderbird shall always start on wsmail
-assign [class="Thunderbird"] $wsmail
+###############################################################################
+# STATUS BAR
+###############################################################################
 
-assign [class="Steam"] $wsgame
-assign [class="Lutris"] $wsgame
-
-assign [class="Gimp"] $wsgraphic
-# todo inkscape does not work, find out why
-assign [class="Inkscape"] $wsgraphic
-
-assign [instance="libreoffice"] $wsoffice
-
-assign [class="ghostwriter"] $wsmarkdown
-assign [class="Code"] $wscode
-assign [class="Deluge"] $wstorrent
-
-assign [class="obsidian"] $wsobsidian
-
-
-for_window [class="Spotify"] move to workspace $wsspotify
-
-#doe not work
-#for_window [class="reminder"] move window to output $display_secondary
-
-#exec --no-startup-id i3-msg 'exec thunderbird; workspace $ws2; workspace $ws1'
-#exec_once --no-startup-id $HOME/bin/weather.sh
-
-
-# OPTIONS
-#
-# enable back-and-forth when workspace switching
-workspace_auto_back_and_forth yes
-popup_during_fullscreen smart
-
-# set numlock on startup
-exec --no-startup-id xdotool key --clearmodifiers Num_Lock
+# i3bar
+# 'output x' sets display, check available output with 'xrandr -q'
+bar {
+  i3bar_command i3bar
+  status_command i3status --transparency
+  colors {
+    background #18181800
+    statusline #D0D0D000
+    separator  #D0D0D050
+    # class            #border   #bground  #text
+    focused_workspace  #FFFFFF20 #15151500 #D0D0D020
+    active_workspace   #3F3F3F20 #15151500 #D0D0D020
+    inactive_workspace #15151520 #3F3F3F00 #D0D0D020
+    urgent_workspace   #15151520 #15151500 #B2282C20
+  }
+}
