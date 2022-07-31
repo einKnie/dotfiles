@@ -296,8 +296,8 @@ bindsym $mod+q mode $sysmenu
 # SSH
 set $connect_mode "  1: laptop | 2: cor  "
 mode  $connect_mode {
-  bindsym 1 exec --no-startup-id i3-msg workspace "laptop" && exec $terminal -e ssh laptop ; mode "default"
-  bindsym 2 exec --no-startup-id i3-msg workspace "cor"    && exec $terminal -e ssh cor ;    mode "default"
+  bindsym 1     workspace "laptop" ; exec $terminal -e ssh laptop ; mode "default"
+  bindsym 2     workspace "cor"    ; exec $terminal -e ssh cor ;    mode "default"
 
   bindsym Return mode "default"
   bindsym Escape mode "default"
