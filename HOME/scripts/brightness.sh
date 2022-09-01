@@ -1,33 +1,37 @@
 #! /bin/bash
+# check brightness and increase or decrease by ste
 
-# check brightness and increase or decrease by 10%
+##### BTW
+## additionally, birghtness level on the acpi level is set
+## in /sys/class/backlight/amdgpu*/brightness
+## same path/max_brightness lists the max level (i.e. 100%)
 
-# TODO: check which disaplys are connected by grepping connected from xrandr config output
-# TODO: ccheck which brightness is currently set by grepping brightness from xrandr output
+step=0.05
+min=0.05
+max=1.0
 
 # function returns a string of the next brightness setting
 # call with argument '1' for increase
 get_brightness() {
   brightness=""
-  for b in $(xrandr --current --verbose | grep -i brightness | sed 's/\(.*\)[a-zA-Z :]//g'); do 
+  for b in $(xrandr --current --verbose | grep -i brightness | sed 's/\(.*\)[a-zA-Z :]//g'); do
     brightness=$b
   done
 
   if [[ $1 -eq 1 ]]; then
     # inc
-    if [[ $(bc <<< "$brightness > 0.99") -eq 0 ]]; then
-      brightness=$(bc <<< "$brightness + 0.01")
+    if [[ $(bc <<< "$brightness >= $max") -eq 0 ]]; then
+      brightness=$(bc <<< "$brightness + $step")
     fi
   else
     # dec
-    if [[ $(bc <<< "$brightness < 0.01") -eq 0 ]]; then
-      brightness=$(bc <<< "$brightness - 0.01")
+    if [[ $(bc <<< "$brightness <= $min") -eq 0 ]]; then
+      brightness=$(bc <<< "$brightness - $step")
     fi
   fi
 
   echo $brightness
 }
-
 
 if [ $# -lt 1 ]; then
   echo "no argument given"
