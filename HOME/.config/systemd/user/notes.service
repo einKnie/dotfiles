@@ -1,0 +1,10 @@
+[Unit]
+Description=synchronite obsidian folder periodically
+
+[Service]
+Type=oneshot
+ExecStart=/home/lila/scripts/assortedScripts/repomgr.sh -a
+StandardOutput=journal
+
+[Install]
+WantedBy=default.target
