@@ -28,6 +28,11 @@ alias tig='tig --all'
 alias gitdiff='git difftool --tool=meld -d'
 alias bat='bat --theme="ansi-dark"'
 
+# convenience function for vpn interaction
+vpn() {
+    sudo systemctl $1 openvpn-client@client
+}
+
 # use custom stylesheet for dolphin to enable dark background
 alias dolphin='dolphin -stylesheet $HOME/.config/qt5ct/qss/dolphin-background.qss'
 
