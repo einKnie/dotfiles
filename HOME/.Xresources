@@ -34,6 +34,12 @@
 *.color15:      #d2d8d9
 *.color7:       #d2d8d9
 
+! urxv  configuration
+
+! get rid of jumping to bottom of output
+URxvt*scrollTtyOutput:      false
+URxvt*scrollWithBuffer:     true
+URxvt*scrollTtyKeypress:    true
 
 ! remove scrollbar and set borders (borders do nothing?)
 URxvt.scrollBar: false
