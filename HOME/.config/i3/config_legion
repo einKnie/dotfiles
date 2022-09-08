@@ -279,13 +279,15 @@ mode  $connect_mode {
 bindsym $mod+c mode  $connect_mode
 
 # WS MANAGEMENT
-set $workspace_mode " [k]ill | re[n]ame | move ↔ | [s]creenshot"
+set $workspace_mode " [k]ill | re[n]ame | move ↔ | [s]creenshot | max [b]rightness | set keymap [l]ayout"
 mode $workspace_mode {
   bindsym k         exec --no-startup-id $HOME/scripts/ws_mgmt/kill_all.sh ; mode "default"
   bindsym Left      move workspace to output left ; mode "default"
   bindsym Right     move workspace to output right ; mode "default"
   bindsym n         exec --no-startup-id $HOME/scripts/ws_mgmt/ws_rename.sh ; mode "default"
   bindsym s         exec --no-startup-id scrot -D $DISPLAY -F $HOME/Pictures/screenshot/%Y-%m-%d_%H-%M_\$a.png ; mode "default"
+  bindsym b         exec --no-startup-id echo "255" > /sys/class/backlight/amdgpu_bl1/brightness ; mode "default"
+  bindsym l         exec --no-startup-id setxkbmap -layout de ; mode "default"
 
   bindsym Return    mode "default"
   bindsym Escape    mode "default"
