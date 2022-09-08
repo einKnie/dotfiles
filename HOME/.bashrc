@@ -33,6 +33,10 @@ vpn() {
     sudo systemctl $1 openvpn-client@client
 }
 
+backlight() {
+    echo "$1" | sudo tee /sys/class/backlight/amdgpu_bl1/brightness
+}
+
 # use custom stylesheet for dolphin to enable dark background
 alias dolphin='dolphin -stylesheet $HOME/.config/qt5ct/qss/dolphin-background.qss'
 
