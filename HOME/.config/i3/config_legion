@@ -1,4 +1,4 @@
-# i3 config for laptop
+# i3 config for legion laptop
 
 ###############################################################################
 # VARIABLES
@@ -36,8 +36,10 @@ exec --no-startup-id xrandr --output eDP1 --mode 1920x1080 && $HOME/.fehbg
 
 exec --no-startup-id setxkbmap -layout de
 
+# don't run picom for the while being, b/c it interferes w/ eso / 2022/12/1
+#
 # start picom (restart always - need to kill manually to avoid multiples)
-exec --no-startup-id "/usr/bin/picom  --config $HOME/.config/picom/picom.conf"
+# exec --no-startup-id "/usr/bin/picom  --config $HOME/.config/picom/picom.conf"
 
 # start dunst (restart always - need to kill manually to avoid multiples)
 exec --no-startup-id "/usr/bin/dunst -config $HOME/.config/dunst/dunstrc"
@@ -183,6 +185,7 @@ bindsym $mod+Shift+v exec --no-startup-id $terminal -e nvim
 ###############################################################################
 
 # lock screen before suspend
+# cannot use $HOME here, since this is not called by me
 exec --no-startup-id xss-lock -l /home/lila/scripts/lock_before_suspend.sh
 # use betterlockscreen on laptop
 bindsym $mod+l exec --no-startup-id betterlockscreen -l dim
@@ -268,7 +271,7 @@ bindsym $mod+q mode $sysmenu
 # SSH
 set $connect_mode " [w]ake [s]oma [c]or "
 mode  $connect_mode {
-  bindsym w         workspace "soma" ;    exec $terminal -e wake-soma ; mode "default"
+  bindsym w         workspace "soma" ;    exec $terminal -e $HOME/scripts/vpnsoma.sh ; mode "default"
   bindsym s         workspace "soma" ;    exec $terminal -e ssh soma ; mode "default"
   bindsym c         workspace "cor"  ;    exec $terminal -e ssh cor ; mode "default"
 
@@ -315,3 +318,4 @@ bar {
     urgent_workspace   #15151520 #15151500 #B2282C20
   }
 }
+
