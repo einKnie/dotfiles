@@ -33,8 +33,14 @@ vpn() {
     sudo systemctl $1 openvpn-client@client
 }
 
+# convenience function to set backlight
 backlight() {
     echo "$1" | sudo tee /sys/class/backlight/amdgpu_bl1/brightness
+}
+
+# list child directories sorted by size
+dus() {
+  du -d1 -h "$1" | sort -hr
 }
 
 # use custom stylesheet for dolphin to enable dark background
@@ -54,7 +60,4 @@ export PS1='\[\e[32m\][\u \w$(__git_ps1 " (%s)")]\[\e[m\] '
 # support mouse scrolling in less and man pages
 export LESS="--mouse -R"
 
-function dus() {
-  du -d1 -h "$1" | sort -hr
-}
 
