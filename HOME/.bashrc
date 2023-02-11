@@ -43,6 +43,15 @@ dus() {
   du -d1 -h "$1" | sort -hr
 }
 
+# start bash auditing session
+audit() {
+	if [ "$1" == "stop" ]; then
+		source NOAUDIT
+	else
+		source AUDIT
+	fi
+}
+
 # use custom stylesheet for dolphin to enable dark background
 alias dolphin='dolphin -stylesheet $HOME/.config/qt5ct/qss/dolphin-background.qss'
 
@@ -51,9 +60,15 @@ LS_COLORS="$LS_COLORS:ow=34;100"
 export LS_COLORS
 
 # bash promt
-#$(__git_ps1 " (%s)")
-export PS1='\[\e[32m\][\u \w$(__git_ps1 " (%s)")]\[\e[m\] '
-#export PS1="> "
+# the PS1 works but calls printf every time
+# (i tried to implement a bash command logger and was faced
+# with an extra printf command being logged for every command i issued)
+#export PS1='\[\e[32m\][\u \w$(__git_ps1 " (%s)")]\[\e[m\] '
+
+# __git_ps1 sets PS1; args: line before gitinfo (basically PS1), line after (fmt end), formatstr for gitinfo
+export PROMPT_COMMAND='__git_ps1 "\\[\e[32m\]\u@\h \w" "\[\e[m\] " "(%s) "'
+# backup PS1
+export PS1="\u > "
 
 #eval "$(starship init bash)"
 

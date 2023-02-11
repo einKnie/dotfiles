@@ -1,0 +1,3 @@
+# source this file to stop bash auditing session
+
+trap ':' DEBUG

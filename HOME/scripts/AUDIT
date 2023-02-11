@@ -1,0 +1,9 @@
+# source this file to enable bash logging for the current shell
+
+# need to manually exclude the PROMPT_COMMAND from being logged.
+# continuation of the story (part one: see .bashrc)
+# i set PROMPT_COMMAND only to keep git_ps1 from printing its
+# prompt (which was logged), and then realized the whole
+# PROMPT_COMMAND itself was also being logged since it's executed.
+# (well, at least it's easier to match)
+trap '[ "${PROMPT_COMMAND//\"/\\\"}" == "${BASH_COMMAND//\"/\\\"}" ] || echo "$USER ($PPID) says: $BASH_COMMAND" | systemd-cat -t "AUDIT"' DEBUG
