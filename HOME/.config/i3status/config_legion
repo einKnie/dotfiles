@@ -30,6 +30,7 @@ order += "volume master"
 order += "read_file weather"
 order += "tztime local"
 
+# no separator so this is truly hidden when gone
 read_file airplane_mode {
   format = "%content"
   format_bad = ""
@@ -39,6 +40,8 @@ read_file airplane_mode {
   color_good = "#D0D0D0"
 }
 
+# iff the airplane mode is active, we need a space between
+# the aiplane field and the vpn indicator
 read_file placeholder {
     format = " "
     format_bad = ""
@@ -47,23 +50,16 @@ read_file placeholder {
     color_bad = "#D0D8D9"
 }
 
+# no separator so this is truly hidden when gone
 read_file vpn {
   format = "%content"
   format_bad = ""
   path = "/home/lila/.vpn_status"
   separator = false
   separator_block_width = 1
-  color_good = "#D0D0D0"
+  color_good = "#af200f"
   align = "right"
   min_width = ""
-}
-
-read_file publicip {
-  format = "%content"
-  format_bad = ""
-  path = "/home/lila/.publicip"
-  color_good = "#D0D0D0"
-  align = "right"
 }
 
 wireless _first_ {
@@ -77,6 +73,25 @@ ethernet _first_ {
   format_up = " %ip"
   format_down = ""
   color_good = "#D0D0D0"
+}
+
+read_file publicip {
+  format = "%content"
+  format_bad = ""
+  path = "/home/lila/.publicip"
+  color_good = "#D0D0D0"
+  align = "right"
+}
+
+battery all {
+  last_full_capacity = true
+  format = "%status %percentage"
+  low_threshold = 15
+  threshold_type = "percentage"
+  status_full = ""
+  status_bat = ""
+  status_chr = ""
+  status_unk = ""
 }
 
 disk "/home" {
@@ -104,30 +119,17 @@ load {
   format = " %1min"
 }
 
-battery all {
-  format = "%status %percentage"
-  low_threshold = 15
-  threshold_type = "time"
-  status_full = ""
-  status_bat = ""
-  status_chr = ""
-  status_unk = ""
-}
-
 memory {
   format = " %used"
   threshold_degraded = "1G"
   format_degraded = " < %available"
 }
 
-tztime local {
-  format = " %a %Y %m %d %H:%M:%S"
-}
-
 volume master {
   format = " %volume"
   format_muted = " %volume"
-  device = "pulse:alsa_output.pci-0000_07_00.6.analog-stereo"
+  #device = "pulse:alsa_output.pci-0000_07_00.6.analog-stereo"
+  device = "default"
   mixer = "Master"
   color_degraded = "#D0D0D0"
   min_width = " 100%"
@@ -138,4 +140,8 @@ read_file weather {
   format_bad = ""
   color_good = "#D0D0D0"
   path = "/home/lila/.weather"
+}
+
+tztime local {
+  format = " %a %Y %m %d %H:%M:%S"
 }
