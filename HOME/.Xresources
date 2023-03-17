@@ -36,6 +36,10 @@
 
 ! urxv  configuration
 
+! 17/3/23: fix for xrvt-unicode 9.31 prompt not in first line
+! https://bbs.archlinux.org/viewtopic.php?id=282791
+URxvt.geometry: 400x400
+
 ! get rid of jumping to bottom of output
 URxvt*scrollTtyOutput:      false
 URxvt*scrollWithBuffer:     true
