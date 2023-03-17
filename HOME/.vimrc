@@ -39,6 +39,9 @@ highlight SpecialKey ctermfg=DarkGrey guifg=DarkGrey
 highlight NonText  ctermfg=DarkGrey guifg=DarkGrey
 set listchars=tab:→\ ,space:·,nbsp:␣,trail:•,eol:¬,precedes:«,extends:»
 
+" hacky fix for wrong colors (until i fix my colorscheme)
+set background=light
+
 "------------------------------------------------------------
 " Must have options {{{1
 "
