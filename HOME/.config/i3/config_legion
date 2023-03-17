@@ -305,8 +305,9 @@ bindsym $mod+s mode $workspace_mode
 # i3bar
 # 'output x' sets display, check available output with 'xrandr -q'
 bar {
-  i3bar_command i3bar
-  status_command i3status --transparency -c $HOME/.config/i3status/config_legion
+  i3bar_command i3bar --transparency
+  status_command i3status -c $HOME/.config/i3status/config_legion
+
   colors {
     background #000000BB
     statusline #D0D0D0FF
