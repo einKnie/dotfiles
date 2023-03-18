@@ -293,16 +293,23 @@ bindsym $mod+s mode $workspace_mode
 # i3bar
 # 'output x' sets display, check available output with 'xrandr -q'
 bar {
-  i3bar_command i3bar
-  status_command i3status --transparency
-  colors {
-    background #18181800
-    statusline #D0D0D000
-    separator  #D0D0D050
-    # class            #border   #bground  #text
-    focused_workspace  #FFFFFF20 #15151500 #D0D0D020
-    active_workspace   #3F3F3F20 #15151500 #D0D0D020
-    inactive_workspace #15151520 #3F3F3F00 #D0D0D020
-    urgent_workspace   #15151520 #15151500 #B2282C20
-  }
+  i3bar_command i3bar --transparency
+  status_command i3status
+
+  # create screenshot with right click on statusbar!
+    bindsym --release button3 exec --no-startup-id scrot $HOME/Pictures/screenshot/%Y-%m-%d_%H-%M_\$a.png
+
+    # fix for https://github.com/i3/i3/issues/5372
+    tray_padding 0
+
+    colors {
+        background #000000BB
+        statusline #D0D0D0FF
+        separator  #D0D0D0AA
+        # class            #border   #bground  #text
+        focused_workspace  #FFFFFFEE #000000BB #D0D0D0FF
+        active_workspace   #3F3F3FCC #000000BB #D0D0D0C0
+        inactive_workspace #151515AA #000000BB #D0D0D0A0
+        urgent_workspace   #151515EE #000000BB #B2282CE0
+    }
 }
