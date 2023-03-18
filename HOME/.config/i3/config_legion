@@ -39,7 +39,7 @@ exec --no-startup-id setxkbmap -layout de
 # don't run picom for the while being, b/c it interferes w/ eso / 2022/12/1
 #
 # start picom (restart always - need to kill manually to avoid multiples)
-# exec --no-startup-id "/usr/bin/picom  --config $HOME/.config/picom/picom.conf"
+ exec --no-startup-id "/usr/bin/picom  --config $HOME/.config/picom/picom.conf"
 
 # start dunst (restart always - need to kill manually to avoid multiples)
 exec --no-startup-id "/usr/bin/dunst -config $HOME/.config/dunst/dunstrc"
