@@ -308,6 +308,12 @@ bar {
   i3bar_command i3bar --transparency
   status_command i3status -c $HOME/.config/i3status/config_legion
 
+  # create screenshot with right click on statusbar!
+  bindsym --release button3 exec --no-startup-id scrot $HOME/Pictures/screenshot/%Y-%m-%d_%H-%M_\$a.png
+
+  # fix for https://github.com/i3/i3/issues/5372
+  tray_padding 0
+
   colors {
     background #000000BB
     statusline #D0D0D0FF
