@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+# script does: notify the current volume
+# script should do: manage audo fully, i.e. mute/mute off, vol up/vol down + notify
+
+mute=0
+volume=0
+icon_mute=/usr/share/icons/Adwaita/32x32/status/audio-volume-muted-symbolic.symbolic.png
+icon_low=/usr/share/icons/Adwaita/32x32/status/audio-volume-low-symbolic.symbolic.png
+icon_mid=/usr/share/icons/Adwaita/32x32/status/audio-volume-medium-symbolic.symbolic.png
+icon_high=/usr/share/icons/Adwaita/32x32/status/audio-volume-high-symbolic.symbolic.png
+icon=$icon_mute
+
+# check param and apply
+if [ "$1" == "up" ]; then
+  echo up
+  pactl set-sink-volume @DEFAULT_SINK@ +1%
+elif [ "$1" == "down" ]; then
+  echo down
+  pactl set-sink-volume @DEFAULT_SINK@ -1%
+elif [ "$1" == "toggle" ]; then
+	echo toggle mute
+	pactl set-sink-mute @DEFAULT_SINK@ toggle
+else
+  echo "invalid argument"
+  exit 1
+fi
+
+# get current settings for notification
+# get mute
+if [ "$(pactl get-sink-mute @DEFAULT_SINK@ | grep no)" == "" ]; then
+		mute=1
+fi
+
+# get volume
+volume=$(pactl get-sink-volume @DEFAULT_SINK@ | grep % | sed -re 's/^.*\s([0-9]+)%\s.*/\1/')
+
+if [ $mute -eq 1 ]; then
+		icon=$icon_mute
+elif [ $((volume)) -gt 70 ]; then
+    icon=$icon_high
+elif [ $((volume)) -gt 40 ]; then
+    icon=$icon_mid
+elif [ $((volume)) -gt 0 ]; then
+    icon=$icon_low
+else
+    icon=$icon_mute
+fi
+
+# send notification
+dunstify -t 1000 -r 1235 -u normal --icon $icon "$volume%" -h int:value:$volume -h string:hlcolor:"#d0d0d0"

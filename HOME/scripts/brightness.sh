@@ -10,6 +10,21 @@ step=0.05
 min=0.05
 max=1.0
 
+# notification
+note_icon=/usr/share/icons/Adwaita/32x32/status/keyboard-brightness-symbolic.symbolic.png
+
+map_brightness_range() {
+  b=$(printf "%.2f" $1)
+  if [[ $(bc <<< "($b * 100) >= 100") -eq 1 ]]; then
+    b=100
+  else
+    b=$(bc <<< "$b * 100")
+  fi
+  b=$(printf "%.0f" $b)
+  echo $b
+}
+
+
 # function returns a string of the next brightness setting
 # call with argument '1' for increase
 get_brightness() {
@@ -60,3 +75,8 @@ for display in $(xrandr --current --verbose | grep -e '.*[^s]connected' | sed 's
   # set brightness level as calculated above
   xrandr --output $display --brightness $bright
 done
+
+# lastly, send notification
+b=$(map_brightness_range $bright)
+echo "brightness: $b"
+dunstify -t 1000 -r 1234 -u normal --icon $note_icon "$b%" -h int:value:$b -h string:hlcolor:"#d0d0d0"
