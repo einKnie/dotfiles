@@ -404,6 +404,26 @@
   timeout = 0
   fullscreen = "show"
 
+  # The format of the message.  Possible variables are:
+    #   %a  appname
+    #   %s  summary
+    #   %b  body
+    #   %i  iconname (including its path)
+    #   %I  iconname (without its path)
+    #   %p  progress value if set ([  0%] to [100%]) or nothing
+    #   %n  progress value if set without any extra characters
+    #   %%  Literal %
+    # Markup is allowed
+    #format = "<b>%s</b>\n%b"
+
+[brightness]
+    icon = "/usr/share/icons/Adwaita/32x32/status/keyboard-brightness-symbolic.symbolic.png"
+    format = "<b>%b</b>"
+
+[audio]
+    icon = "/usr/share/icons/Adwaita/32x32/status/audio-volume*"
+    format = "<b>%b</b>"
+
 # Disable the transient hint so that idle_threshold cannot be bypassed from the
 # client
 #[transient_disable]
