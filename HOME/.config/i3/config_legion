@@ -298,6 +298,18 @@ mode $workspace_mode {
 }
 bindsym $mod+s mode $workspace_mode
 
+# SCREENSHOT
+set $screenshot_mode " [a]ll | [s]elect "
+mode $screenshot_mode {
+  bindsym --release a exec --no-startup-id maim -i root $HOME/Pictures/screenshot/$(date +%Y-%m-%d_%H-%M-%S_$(hostnamectl --static)).png ; mode "default"
+  bindsym --release s exec --no-startup-id maim -s $HOME/Pictures/screenshot/$(date +%Y-%m-%d_%H-%M-%S).png ; mode "default"
+
+  bindsym Return mode "default"
+  bindsym Escape mode "default"
+  bindsym $mod+Print mode "default"
+}
+bindsym $mod+Print mode $screenshot_mode
+
 ###############################################################################
 # STATUS BAR
 ###############################################################################
