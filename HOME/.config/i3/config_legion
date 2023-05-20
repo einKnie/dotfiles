@@ -227,16 +227,6 @@ bindsym $mod+x exec --no-startup-id $HOME/scripts/xtc.sh
 # set timer
 bindsym $mod+Shift+t exec --no-startup-id $HOME/bin/reminder.sh --on -t
 
-# timeKeeper
-bindsym $mod+F1 exec --no-startup-id $HOME/bin/timeKeeper -t1 -s
-bindsym $mod+F2 exec --no-startup-id $HOME/bin/timeKeeper -t2 -s
-bindsym $mod+F3 exec --no-startup-id $HOME/bin/timeKeeper -t3 -s
-bindsym $mod+F4 exec --no-startup-id $HOME/bin/timeKeeper -t4 -s
-bindsym $mod+F5 exec --no-startup-id $HOME/bin/timeKeeper -t5 -s
-bindsym $mod+Escape exec --no-startup-id $HOME/bin/timeKeeper -q
-bindsym $mod+Print exec --no-startup-id $HOME/bin/timeKeeper -x
-bindsym $mod+0xfe52 exec --no-startup-id $HOME/bin/timeKeeper -v
-
 ###############################################################################
 # MODES
 ###############################################################################
@@ -309,6 +299,25 @@ mode $screenshot_mode {
   bindsym $mod+Print mode "default"
 }
 bindsym $mod+Print mode $screenshot_mode
+
+# TIMEKEEPER
+set $time_mgmt_mode " switch to task[1-5] | [s]top tasks | [p]rint tasks | [w]rite task data to file "
+mode $time_mgmt_mode {
+  bindsym 1        exec --no-startup-id $HOME/bin/timeKeeper -t1 -s ; mode "default"
+  bindsym 2        exec --no-startup-id $HOME/bin/timeKeeper -t2 -s ; mode "default"
+  bindsym 3        exec --no-startup-id $HOME/bin/timeKeeper -t3 -s ; mode "default"
+  bindsym 4        exec --no-startup-id $HOME/bin/timeKeeper -t4 -s ; mode "default"
+  bindsym 5        exec --no-startup-id $HOME/bin/timeKeeper -t5 -s ; mode "default"
+
+  bindsym s        exec --no-startup-id $HOME/bin/timeKeeper -e; mode "default"
+  bindsym p        exec --no-startup-id $HOME/bin/timeKeeper -v; mode "default"
+  bindsym w        exec --no-startup-id $HOME/bin/timeKeeper -x; mode "default"
+
+  bindsym Return    mode "default"
+  bindsym Escape    mode "default"
+  bindsym $mod+s    mode "default"
+}
+bindsym $mod+t mode $time_mgmt_mode
 
 ###############################################################################
 # STATUS BAR
