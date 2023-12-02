@@ -2,8 +2,8 @@
 Description=Check the weather periodically
 
 [Timer]
-OnStartupSec=5sec
-OnUnitActiveSec=5min
+OnStartupSec=15sec
+OnUnitActiveSec=15min
 
 [Install]
 WantedBy=timers.target

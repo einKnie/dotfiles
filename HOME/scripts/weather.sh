@@ -1,17 +1,17 @@
 #!/bin/bash
-
+#set -x
 FILE=$HOME/.weather
 CONFIG=$HOME/.config/weather.conf
 #ping google to see if we're online so the bar doesn't fill with garbage if it can't find OWM
-if ping -q -c 1 -W 1 google.com &> /dev/null; then
+if ping -q -c 1 -W 1 8.8.8.8 &> /dev/null; then
     #read the conf file for the needed info
     read a b c <<< $(tr '\n' ' ' <$CONFIG)
     #get current weather info from OWM, use jq to strip it down to main temp and the icon id, then strip linebreaks and quotes from it
-    #echo "https://api.openweathermap.org/data/2.5/weather?q=$a&appid=$b&units=$c" 
+    #echo "https://api.openweathermap.org/data/2.5/weather?q=$a&appid=$b&units=$c"
     read d e <<< $(curl -s "https://api.openweathermap.org/data/2.5/weather?q=$a&appid=$b&units=$c" | jq -r '.main.temp, .weather[].icon' | tr '\n' ' ' | sed "s/\"//g")
     #round the current temp to an integer
     t=$(printf %0.f $d)
-    #define the icons 
+    #define the icons
     i=""
     if [[ $e == 01d ]]; then
         i="" #clear day
@@ -42,5 +42,6 @@ if ping -q -c 1 -W 1 google.com &> /dev/null; then
     fi
     echo "$i $t°" > $FILE #put em together
 else
+    echo "NO DATA"
     echo " ??" > $FILE #if google can't be pinged, show the d/ced icon and ?? degrees
 fi
