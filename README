@@ -1,1 +1,12 @@
-## tmp
+# dotfiles
+
+The whole setup can be installed with the install.sh script.
+The script will install required programs and symlink the
+files in HOME/ to their respective place in your $HOME.
+Check the scripts parameters with `-h` beforehand to perform
+an informed install.
+
+Files in ROOT/ may be installed manually if needed.
+Copy to the respective location in your / and set the correct permissions.
+Note: These are very specific to one system or use case, and will need
+adaptations for other setups.
