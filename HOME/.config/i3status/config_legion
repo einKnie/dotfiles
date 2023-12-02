@@ -26,6 +26,7 @@ order += "disk /"
 order += "cpu_temperature 0"
 order += "load"
 order += "memory"
+order += "read_file bluetooth"
 order += "volume master"
 order += "read_file weather"
 order += "tztime local"
@@ -123,6 +124,16 @@ memory {
   format = " %used"
   threshold_degraded = "1G"
   format_degraded = " < %available"
+}
+
+# no separator so this is truly hidden when gone
+read_file bluetooth {
+  format = "%content"
+  format_bad = ""
+  path = "/home/lila/.bt_status"
+  separator = false
+  separator_block_width = 1
+  color_good = "#D0D0D0"
 }
 
 volume master {
