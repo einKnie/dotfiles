@@ -27,6 +27,8 @@ hide_edge_borders both
 default_border none
 default_floating_border none
 
+for_window [window_role="pop-up"] floating enable
+
 ###############################################################################
 # STARTUP
 ###############################################################################
@@ -38,8 +40,8 @@ exec --no-startup-id setxkbmap -layout de
 
 # don't run picom for the while being, b/c it interferes w/ eso / 2022/12/1
 #
-# start picom (restart always - need to kill manually to avoid multiples)
- exec --no-startup-id "/usr/bin/picom  --config $HOME/.config/picom/picom.conf"
+# start picom
+#exec_always --no-startup-id "/usr/bin/picom  --config $HOME/.config/picom/picom.conf"
 
 # start dunst (restart always for testing - kill manually to avoid multiples)
 exec_always --no-startup-id "killall -q dunst ; /usr/bin/dunst -config $HOME/.config/dunst/dunstrc"
@@ -86,7 +88,7 @@ assign [class="ghostwriter"]    $wsmarkdown
 assign [class="Code"]           $wscode
 assign [instance="libreoffice"] $wsoffice
 assign [class="thunderbird"]    $wsmail
-assign [class="Steam"]          $wsgame
+assign [class="steam"]          $wsgame
 assign [class="Lutris"]         $wsgame
 assign [class="Deluge"]         $wstorrent
 assign [class="discord"]        $wsdiscord
@@ -180,13 +182,18 @@ bindsym $mod+Shift+Return exec --no-startup-id $terminal -e ranger
 # start neovim
 bindsym $mod+Shift+v exec --no-startup-id $terminal -e nvim
 
+# testing area (i'd like to start this floating but i don't know how (only floating when stared via this bindsym))
+#bindsym $mod+less exec --no-startup-id pavucontrol
+
 ###############################################################################
 # PERSONAL KEYBINDINGS (find key name with xev)
 ###############################################################################
 
 # lock screen before suspend
 # cannot use $HOME here, since this is not called by me
-exec --no-startup-id xss-lock -l /home/lila/scripts/lock_before_suspend.sh
+# TODO: fetch this script from laptop!
+# or rather: find out why this works on dendrit
+#exec --no-startup-id xss-lock -l /home/lila/scripts/lock_before_suspend.sh
 # use betterlockscreen on laptop
 bindsym $mod+l exec --no-startup-id betterlockscreen -l dim
 
@@ -199,15 +206,13 @@ bindsym XF86AudioRaiseVolume exec --no-startup-id $HOME/bin/audio_manage up && k
 bindsym XF86MonBrightnessDown exec --no-startup-id $HOME/bin/brightness.sh down
 bindsym XF86MonBrightnessUp exec --no-startup-id $HOME/bin/brightness.sh up
 
-bindsym XF86RFKill exec --no-startup-id $HOME/bin/write_airplane.sh
-
 # toggle redshift
 bindsym $mod+y exec --no-startup-id $HOME/scripts/toggle_redshift.sh
 
 # flight mode
 # works on its own on dendrit
-# todo: find a way to still show the status in bar
-#bindsym XF86RFKill exec --no-startup-id $HOME/scripts/airplane.sh
+# but still write file to show the status in bar
+bindsym XF86RFKill exec --no-startup-id $HOME/bin/write_airplane.sh
 
 # show a 7-day weather forecast
 bindsym $mod+Shift+w exec --no-startup-id $HOME/bin/forecast.sh
@@ -301,7 +306,7 @@ mode $screenshot_mode {
 bindsym $mod+Print mode $screenshot_mode
 
 # TIMEKEEPER
-set $time_mgmt_mode " switch to task[1-5] | [s]top tasks | [p]rint tasks | [w]rite task data to file "
+set $time_mgmt_mode " switch to task[1-5] | [s]top tasks | [p]rint tasks | [w]rite task data to file | [q]uit timeKeeper "
 mode $time_mgmt_mode {
   bindsym 1        exec --no-startup-id $HOME/bin/timeKeeper -t1 -s ; mode "default"
   bindsym 2        exec --no-startup-id $HOME/bin/timeKeeper -t2 -s ; mode "default"
@@ -312,6 +317,7 @@ mode $time_mgmt_mode {
   bindsym s        exec --no-startup-id $HOME/bin/timeKeeper -e; mode "default"
   bindsym p        exec --no-startup-id $HOME/bin/timeKeeper -v; mode "default"
   bindsym w        exec --no-startup-id $HOME/bin/timeKeeper -x; mode "default"
+  bindsym q        exec --no-startup-id $HOME/bin/timeKeeper -q; mode "default"
 
   bindsym Return    mode "default"
   bindsym Escape    mode "default"
