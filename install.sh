@@ -5,11 +5,6 @@
 # check if a file already exists (deal with that by user config)
 # and symlink the repo-file to the repective $HOME file location
 
-# todo:
-# - automate the setup - done
-# - deal with relative paths! - done
-# - maybe even checkout other necessary repos (assorted scripts for example)
-
 debug=0
 basedir="$(cd "$(dirname "$0")"; pwd -P)"
 ownpath="$(realpath "$0")"
@@ -23,6 +18,7 @@ proglist="i3-wm i3status i3lock dunst picom rofi \
 echov()   { [ $verbose -eq 1 ] && echo "$1" || return 0; }
 echoerr() { cat <<< "error: $@" 1>&2; }
 
+# user confirm
 yes_or_no() {
   read -p "$1 [Y/n] " ret
   if [ "$ret" != "N" ] && [ "$ret" != "n" ]; then
@@ -32,8 +28,40 @@ yes_or_no() {
   fi
 }
 
+# helptext
+print_help() {
+	echo "$(basename "$0") - link config files"
+	echo "usage:"
+	echo
+	echo " -t <type> ... automated mode; possible types are [full, files]*"
+	echo " -s  ... source path           (only if no type given)"
+	echo " -d  ... destination path      (only if no type given)"
+	echo " -b  ... create backups of existing files"
+	echo " -f  ... force; don't ask before overriding existing files"
+	echo " -v  ... verbose; print info messages"
+	echo " -h  ... print this help"
+	echo
+	echo "* types:"
+	echo "  full - install all necessary programs and available files"
+	echo "  files - install only files, not programs"
+}
+
+# print own config in verbose mode
+print_config() {
+	echo "Source:      $src"
+	echo "Destination: $dst"
+	echo "Using config:"
+	[ $backup  -eq 1 ] && { echo "  [backup]  x"; } || { echo "  [backup]  o"; }
+	[ $force   -eq 1 ] && { echo "  [force]   x"; } || { echo "  [force]   o"; }
+	[ $verbose -eq 1 ] && { echo "  [verbose] x"; } || { echo "  [verbose] o"; }
+	[ $debug   -eq 1 ] && { echo "  [debug]   x"; }
+}
+
+###############################################################################
+
 # create a symlink of $1 as link $2
 # containing directories are created on the go
+# backups of existing files are created if option set
 symlink() {
 	local file="$1"
 	local link="$2"
@@ -48,7 +76,7 @@ symlink() {
 			echov "removed existing file $link"
 		fi
 	elif [ ! -d "$(dirname "$link")" ]; then
-		# create containing directory in case it also does not exist
+		# create containing directory in case it does not exist
 		mkdir -p "$(dirname "$link")"
 		echov "created containing directory $(dirname "$link")"
 	fi
@@ -60,29 +88,9 @@ symlink() {
 	return 0
 }
 
-link_home() {
-	local src="$(cd $basedir/HOME; pwd)"
-	local dst="$HOME"
-
-	install_config "$src" "$dst"
-}
-
-print_config() {
-
-	echo "Source:      $src"
-	echo "Destination: $dst"
-	echo "Using config:"
-	[ $backup  -eq 1 ] && { echo "  [backup]  x"; } || { echo "  [backup]  o"; }
-	[ $force   -eq 1 ] && { echo "  [force]   x"; } || { echo "  [force]   o"; }
-	[ $verbose -eq 1 ] && { echo "  [verbose] x"; } || { echo "  [verbose] o"; }
-	[ $debug   -eq 1 ] && { echo "  [debug]   x"; }
-}
-
-install_progs() {
-	# this is not generic, works for manjaro/arch
-	sudo pacman -S $proglist || { echoerr "failed to install programs"; return 1; }
-}
-
+# link all files in $1 to their respective location in $2
+# request user confirmation before overwriting existing files
+# if config option is set
 install_config() {
 	local src="$1"
 	local dst="$2"
@@ -107,9 +115,23 @@ install_config() {
 	return $err
 }
 
+# install all files in HOME
+link_home() {
+	local src="$(cd $basedir/HOME; pwd)"
+	local dst="$HOME"
+
+	install_config "$src" "$dst"
+}
+
+# install required programs
+# this is not generic, works for manjaro/arch
+install_progs() {
+	sudo pacman -S $proglist || { echoerr "failed to install programs"; return 1; }
+}
+
+# perform actions to finish the setup
 setup_config() {
 	local err=0
-	# do all the things
 
 	# link files from ~/scripts to ~/bin
 	mkdir -p $HOME/bin
@@ -134,6 +156,9 @@ setup_config() {
 	return $err
 }
 
+# adapt i3 config to current system, mainly in regards to monitor setup.
+# link the single- or multi-monitor config file and update the monitor variables
+# in the config file to match the system's screen names
 update_i3config() {
   local dp1=""
   local dp2=""
@@ -167,23 +192,6 @@ update_i3config() {
 	sed -i.bak -r "s/display \"([A-Za-z0-9\-]*)\"$/display \"$dp1\"/g" "$wmconfig"
   fi
 
-}
-
-print_help() {
-	echo "$(basename "$0") - link config files"
-	echo "usage:"
-	echo
-	echo " -t <type> ... automated mode; possible types are [full, files]*"
-	echo " -s  ... source path           (only if no type given)"
-	echo " -d  ... destination path      (only if no type given)"
-	echo " -b  ... create backups of existing files"
-	echo " -f  ... force; don't ask before overriding existing files"
-	echo " -v  ... verbose; print info messages"
-	echo " -h  ... print this help"
-	echo
-	echo "* types:"
-	echo "  full - install all necessary programs and available files"
-	echo "  files - install only files, not programs"
 }
 
 ###############################################################################
