@@ -51,14 +51,19 @@ URxvt.externalBorder: 0
 URxvt.internalBorder: 0
 URxvt.borderLess: false
 
-! set transparency (?)
+! 'fake' urxvt transparency
+! basically copies the set background and applies to self
+! configured to produce same shading a i3bar
 URxvt.transparent: true
 URxvt.shading: 40
 URxvt.tintcolor: #1C1C1C
 
-!URxvt.font: xft:7x14:size=8
-!URxvt.font: xft:Monoid Tight:size=8
-!URxvt.font: xft:DejaVu Sans Mono:size=8
+! this is 'true' transparency,
+! configured to look the same, but requires a compositor
+!URxvt.depth: 32
+!URxvt.background: [60]#000000
+
+! font settings
 Xft.rgba: none
 Xft.dpi: 96
 URxvt.font: xft:SourceCodePro:size=8.5
