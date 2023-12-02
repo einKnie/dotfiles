@@ -3,9 +3,10 @@ Description=fetch current publich-facing ip address
 
 [Service]
 Type=oneshot
-RemainAfterExit=yes
+RemainAfterExit=no
 Environment=DISPLAY=:0
 ExecStart=/home/lila/scripts/get_public_ip.sh
+StandardOutput=journal
 
 [Install]
 WantedBy=default.target
