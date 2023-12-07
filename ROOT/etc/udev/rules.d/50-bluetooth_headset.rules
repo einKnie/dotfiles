@@ -1,0 +1,14 @@
+# info: b/c it was pretty hard to make this work
+# get dev path with udevadm monitor
+# get attributes with 'udevadm info -ap /path/'
+# (in this case /devices/virtual/input/inputXX)
+ACTION=="add", SUBSYSTEM=="input", ATTR{name}=="EPOS ADAPT 660 (AVRCP)", ENV{LILA}="yes", RUN+="/usr/bin/sudo -u lila /home/lila/bin/writeBTSwitch.sh -a"
+
+
+ACTION=="add", SUBSYSTEM=="input", ATTR{name}=="SRS-XB13 (AVRCP)", ENV{LILA}="yes", RUN+="/usr/bin/sudo -u lila /home/lila/bin/writeBTSwitch.sh -a -s"
+
+
+# when the device is removed, we don't have the attributes, but we have environmant vars instead.
+# get env vars with 'sudo udevadm monitor --property --udev'
+# technically, existing vars can be used (NAME="PCX...") but I only got it to work with a self defined variable 'LILA'. no idea why.
+ACTION=="remove", SUBSYSTEM=="input", ENV{LILA}=="yes", RUN+="/usr/bin/sudo -u lila /home/lila/bin/writeBTSwitch.sh -r"
