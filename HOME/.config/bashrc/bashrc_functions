@@ -1,0 +1,33 @@
+# lila's function bashrc
+# this should be sourced from the global .bashrc
+
+# check this to see if this was applied
+export USER_BASHRC_FUNCTIONS="applied"
+
+######################################################
+
+
+# convenience function for vpn interaction
+vpn() {
+    sudo systemctl $1 openvpn-client@client
+}
+
+# convenience function to set backlight on dendrit
+backlight() {
+    echo "$1" | sudo tee /sys/class/backlight/amdgpu_bl1/brightness
+}
+
+# list child directories sorted by size
+dus() {
+  du -d1 -h "$1" | sort -hr
+}
+
+# start bash auditing session
+audit() {
+	if [ "$1" == "stop" ]; then
+		source NOAUDIT
+	else
+		source AUDIT
+	fi
+}
+

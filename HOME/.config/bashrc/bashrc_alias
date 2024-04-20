@@ -1,0 +1,22 @@
+# lila's alias bashrc
+# this should be sourced from the global .bashrc
+
+# check this to see if this was applied
+export USER_BASHRC_ALIAS="applied"
+
+######################################################
+
+# general aliases
+alias ls='ls --color=auto'
+alias ll='ls -la --color=auto'
+
+# fun
+alias lol='fortune | lolcat'
+
+# git-related
+alias tig='tig --all'
+alias gitdiff='git difftool --tool=meld -d'
+
+# program configuration
+alias bat='bat --theme="ansi-dark"'
+

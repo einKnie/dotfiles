@@ -1,0 +1,28 @@
+# lila's general bashrc
+# this should be sourced from the global .bashrc
+
+# check this to see if this was applied
+export USER_BASHRC_GENERAL="applied"
+
+######################################################
+
+# User specific environment
+if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]
+then
+    PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+fi
+export PATH
+
+# set preferred editor
+export EDITOR=vim
+
+# set color scheme for other-exec dirs
+LS_COLORS+="$LS_COLORS:ow=34;100"
+export LS_COLORS
+
+# support mouse scrolling in less and man pages
+export LESS="--mouse -R"
+
+# use custom stylesheet for dolphin to enable dark background
+alias dolphin='dolphin -stylesheet $HOME/.config/qt5ct/qss/dolphin-background.qss'
+
