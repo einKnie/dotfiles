@@ -8,7 +8,7 @@ fi
 # source user-specific config files
 user_cfg_dir="${HOME}/.config/bashrc"
 if [ -d "$user_cfg_dir" ] ; then
-	for cfg in ls ${user_cfg_dir}/bashrc_* ; do
+	for cfg in ${user_cfg_dir}/bashrc_* ; do
 		. $cfg
 	done
 fi
