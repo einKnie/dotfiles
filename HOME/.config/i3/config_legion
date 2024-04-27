@@ -14,7 +14,8 @@ set $terminal urxvt
 ###############################################################################
 
 # fonts
-font pango:DejaVu Sans Mono, FontAwesome6Free 8
+font pango:DejaVu Sans Mono 8, Symbols Nerd Font Mono 8
+#, FontAwesome6, FontAwesome6Free 8
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -70,8 +71,8 @@ set $ws10 "10"
 set $wsmail ""
 set $wsmusic ""
 set $wsgame ""
-set $wsgraphic ""
-set $wsmarkdown ""
+set $wsgraphic ""
+set $wsmarkdown ""
 set $wscode ""
 set $wsspotify ""
 set $wstorrent ""
@@ -79,7 +80,7 @@ set $wsmonitor ""
 set $wsoffice ""
 set $wsobsidian ""
 set $wsspotify ""
-set $wsdiscord ""
+set $wsdiscord ""
 
 # assign applications to workspaces
 assign [class="Inkscape"]       $wsgraphic

@@ -71,7 +71,7 @@ wireless _first_ {
 }
 
 ethernet _first_ {
-  format_up = " %ip"
+  format_up = " %ip"
   format_down = ""
   color_good = "#D0D0D0"
 }
@@ -110,20 +110,20 @@ disk "/" {
 }
 
 cpu_temperature 0 {
-  format = " %degrees °C"
+  format = "%degrees °C"
   max_threshold = 80
-  format_above_threshold = " %degrees °C"
+  format_above_threshold = " %degrees °C"
   path = "/sys/class/hwmon/hwmon3/temp1_input"
 }
 
 load {
-  format = " %1min"
+  format = " %1min"
 }
 
 memory {
-  format = " %used"
+  format = " %used"
   threshold_degraded = "1G"
-  format_degraded = " < %available"
+  format_degraded = " < %available"
 }
 
 # no separator so this is truly hidden when gone
@@ -138,12 +138,13 @@ read_file bluetooth {
 
 volume master {
   format = " %volume"
-  format_muted = " %volume"
+  format_muted = " %volume"
   #device = "pulse:alsa_output.pci-0000_07_00.6.analog-stereo"
   device = "default"
   mixer = "Master"
   color_degraded = "#D0D0D0"
   min_width = " 100%"
+  align = "right"
 }
 
 read_file weather {

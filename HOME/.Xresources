@@ -64,9 +64,11 @@ URxvt.tintcolor: #1C1C1C
 !URxvt.background: [60]#000000
 
 ! font settings
+! dont try to make fontawesome work, urxvt does not and cannot support it
+! but nerd fonts work
 Xft.rgba: none
 Xft.dpi: 96
-URxvt.font: xft:SourceCodePro:size=8.5
+URxvt.font: xft:SauceCodeProNerdFontMono:size=9
 URxvt.perl-ext-common: font-size
 URxvt.cursorUnderline: 1
 

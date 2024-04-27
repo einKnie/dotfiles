@@ -59,7 +59,7 @@ done
 
 if [ $added -eq 1 ]; then
 	if [ $speakers -eq 0 ]; then
-		echo "" > "$outfile"
+		echo "" > "$outfile"
 	else
 		echo "" > "$outfile"
 	fi
