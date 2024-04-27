@@ -5,10 +5,10 @@
 
 mute=0
 volume=0
-icon_mute=/usr/share/icons/Adwaita/32x32/status/audio-volume-muted-symbolic.symbolic.png
-icon_low=/usr/share/icons/Adwaita/32x32/status/audio-volume-low-symbolic.symbolic.png
-icon_mid=/usr/share/icons/Adwaita/32x32/status/audio-volume-medium-symbolic.symbolic.png
-icon_high=/usr/share/icons/Adwaita/32x32/status/audio-volume-high-symbolic.symbolic.png
+icon_mute=/usr/share/icons/Adwaita/symbolic/status/audio-volume-muted-symbolic.svg
+icon_low=/usr/share/icons/Adwaita/symbolic/status/audio-volume-low-symbolic.svg
+icon_mid=/usr/share/icons/Adwaita/symbolic/status/audio-volume-medium-symbolic.svg
+icon_high=/usr/share/icons/Adwaita/symbolic/status/audio-volume-high-symbolic.svg
 icon=$icon_mute
 
 # check param and apply
