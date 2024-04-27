@@ -1,47 +1,94 @@
 #!/bin/bash
 #set -x
-FILE=$HOME/.weather
-CONFIG=$HOME/.config/weather.conf
-#ping google to see if we're online so the bar doesn't fill with garbage if it can't find OWM
-if ping -q -c 1 -W 1 8.8.8.8 &> /dev/null; then
-    #read the conf file for the needed info
-    read a b c <<< $(tr '\n' ' ' <$CONFIG)
-    #get current weather info from OWM, use jq to strip it down to main temp and the icon id, then strip linebreaks and quotes from it
-    #echo "https://api.openweathermap.org/data/2.5/weather?q=$a&appid=$b&units=$c"
-    read d e <<< $(curl -s "https://api.openweathermap.org/data/2.5/weather?q=$a&appid=$b&units=$c" | jq -r '.main.temp, .weather[].icon' | tr '\n' ' ' | sed "s/\"//g")
-    #round the current temp to an integer
-    t=$(printf %0.f $d)
-    #define the icons
-    i=""
-    if [[ $e == 01d ]]; then
-        i="" #clear day
-    elif [[ $e == 01n ]]; then
-        i="" #clear night
-    elif [[ $e == 02d ]]; then
-        i="" #few clouds day
-    elif [[ $e == 02n ]]; then
-        i="" #few clouds night
-    elif [[ $e == 03* || $e == 04*  ]]; then
-        i="" #scattered/broken clouds day/night
-    elif [[ $e == 09* ]]; then
-        i="" #shower rain day/night
-    elif [[ $e == 10d ]]; then
-        i="" #rain day
-    elif [[ $e == 10n ]]; then
-        i="" #rain night
-    elif [[ $e == "10d 11d" ]]; then
-        i="" #thunderstorm day
-    elif [[ $e == "10n 11n" ]]; then
-        i="" #thunderstorm night
-    elif [[ $e == 11* ]]; then
-        i="" #thunderstorm generic
-    elif [[ $e == 13* ]]; then
-        i="" #snow day/night
-    elif [[ $e == 50* ]]; then
-        i="" #fog day/night
-    fi
-    echo "$i $t°" > $FILE #put em together
-else
-    echo "NO DATA"
-    echo " ??" > $FILE #if google can't be pinged, show the d/ced icon and ?? degrees
-fi
+
+############################################################
+#                                                          #
+# Fetch the current weather, format it into '$icon $temp', #
+# and write to a file.                                     #
+#                                                          #
+# Provide a config file at the path set in $config         #
+# with the *only* content (each value in a new line):      #
+# ${latitude of location}                                  #
+# ${longitude of location}                                 #
+# ${api_key}                                               #
+#                                                          #
+# where lat and lon are the coordinates of the location    #
+# you want to get the weather for, and the api key         #
+# can be generated for free (but with account) at          #
+# https://openweathermap.org/price#weather                 #
+# (you want the Free plan (Current Weather and Forecast))  #
+#                                                          #
+############################################################
+
+# variables
+output=$HOME/.weather
+config=$HOME/.config/weather.conf
+api_url="https://api.openweathermap.org/data/2.5/"
+test_url="8.8.8.8"
+
+# declare the icons (fontawesome)
+declare -A icons_awesome
+icons_awesome=(
+	    [01d]="" [01n]="" # clear
+		[02d]="" [02n]="" # few clouds
+		[03d]="" [03n]="" # clouds
+		[04d]="" [04n]="" # clouds
+		[09d]="" [09n]="" # light rain
+		[10d]="" [10n]="" # rain
+		[13d]="" [13n]="" # snow
+		[11d]="" [11n]="" # thunderstorm
+		[50d]="" [50n]="" # fog
+	  )
+
+# declare the icons (nerd font)
+declare -A icons_nerd
+icons_nerd=(
+	    [01d]="" [01n]="" # clear
+		[02d]="" [02n]="" # few clouds
+		[03d]="󰅟" [03n]="󰅟" # clouds
+		[04d]="󰅟" [04n]="󰅟" # clouds
+		[09d]="" [09n]="" # light rain
+		[10d]="" [10n]="" # rain
+		[13d]="" [13n]="" # snow
+		[11d]="" [11n]="" # thunderstorm
+		[50d]="" [50n]="" # fog
+	  )
+
+# cleanup on exit
+cleanup() {
+	ret=$?
+	if [ $ret -ne 0 ]; then
+		# set error output
+		echo " ??" > $output
+	fi
+	exit $ret
+}
+trap "cleanup" EXIT
+
+# ping test_url to see if we're online so we fail early in case we're not
+ping -q -c 1 -W 1 $test_url &> /dev/null || { echo "no connection"; exit 1;}
+
+# read the config file for the needed info and generate query
+# check if file exists and is not empty (no need to overdo it, there's enough error checking later on)
+[ -f "$config" ] || [ -s "$config" ] || { echo "no or empty config file found at $config"; exit 1; }
+read lat lon apikey <<< $(tr '\n' ' ' <$config)
+query=$(printf "weather?lat=%.2f&lon=%.2f&appid=%s&units=metric" $lat $lon $apikey)
+
+# get current weather info from OWM
+# use jq to strip it down to main temp and the icon id, then strip linebreaks
+read temp icon <<< $(curl -s "${api_url}${query}" |
+	jq -r '.main.temp, .weather[].icon' |
+	tr '\n' ' ')
+
+[ -n "$temp" ] && [ -n "$icon" ] || { echo "Invalid response from owm."; exit 1; }
+
+# fetch the icon
+# we don't use the icons provided by owm, but our own mapping
+i=${icons_nerd[$icon]}
+
+# force into a two digit whoole number so the width of the
+# output does not change whether it's ' 5°' or '25°'
+t=$(printf %2.f $temp)
+
+# finally print to file
+echo "$i $t°" > $output
