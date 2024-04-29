@@ -77,7 +77,7 @@ ethernet _first_ {
 }
 
 read_file publicip {
-  format = "%content"
+  format = " %content"
   format_bad = ""
   path = "/home/lila/.publicip"
   color_good = "#D0D0D0"
