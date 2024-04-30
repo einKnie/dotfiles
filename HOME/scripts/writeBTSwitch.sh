@@ -7,6 +7,9 @@
 outfile="$HOME/.bt_status"
 scriptname="$(basename "$0")"
 
+headset=""
+speaker=""
+
 log_journal() {
   if which systemd-cat &>/dev/null ; then
     echo "$@" | systemd-cat -t "$scriptname"
@@ -16,7 +19,7 @@ log_journal() {
 }
 
 print_help() {
-	echo "Simple script to write volume symbols for i3status"
+	echo "Simple script to write bluetooth symbols for i3status"
 	echo "  usage:  $scriptname -u/-d [-s]"
 	echo
 	echo "  -a ... bluetooth device added"
@@ -59,9 +62,9 @@ done
 
 if [ $added -eq 1 ]; then
 	if [ $speakers -eq 0 ]; then
-		echo "" > "$outfile"
+		echo $headset > "$outfile"
 	else
-		echo "" > "$outfile"
+		echo $speaker > "$outfile"
 	fi
 	[ $status_old -eq 0 ] && log_journal "bluetooth device added"
 else
