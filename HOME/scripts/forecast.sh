@@ -1,8 +1,17 @@
 #!/usr/bin/env bash
+#set -x
 
 # Show a 7-day weather forecast as a notification
 # requires nerdfont, breeze-dark icon theme, and dunstify
-#set -x
+#
+# unfortunately, this will stop working some time soon (i think mid 2024)
+# the onecall api 2.5 is deprecated, and the 3.0 api requires me to pay.
+# (technically not since 1000 calls per day are free, but I don't want to
+# give them my payment info for something that i never actually use)
+# There is a free 'forecast' api call which will continue to work
+# (https://openweathermap.org/forecast5#5days 5-day 3-hour forecast)
+# but it is such a pain in the ass to use that i think it is deliberate to force people to pay.
+# anyway, when this stops working, i won't fix it.
 
 config=$HOME/.config/weather.conf
 api_url="https://api.openweathermap.org/data/2.5/"
