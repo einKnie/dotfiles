@@ -1,5 +1,5 @@
 [Unit]
-Description=synchronite obsidian folder periodically
+Description=synchronize obsidian folder
 
 [Service]
 Type=oneshot

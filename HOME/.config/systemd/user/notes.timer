@@ -1,5 +1,5 @@
 [Unit]
-Description=Sync notes epo periodically
+Description=Sync notes repo periodically
 
 [Timer]
 OnStartupSec=10sec
