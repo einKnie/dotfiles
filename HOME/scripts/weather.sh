@@ -80,10 +80,13 @@ read temp icon <<< $(curl -s "${api_url}${query}" |
 	jq -r '.main.temp, .weather[].icon' |
 	tr '\n' ' ')
 
-[ -n "$temp" ] && [ -n "$icon" ] || { echo "Invalid response from owm."; exit 1; }
+# check if array subscript exists
+# see https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Shell-Parameter-Expansion
+# ${parameter:+word}
+# If parameter is null or unset, nothing is substituted, otherwise the expansion of word is substituted.
+[ "${icons_nerd[$icon]+exists}" ] || { echo "Invalid response from owm."; exit 1; }
 
 # fetch the icon
-# we don't use the icons provided by owm, but our own mapping
 i=${icons_nerd[$icon]}
 
 # force into a two digit whoole number so the width of the
