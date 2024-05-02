@@ -1,64 +1,58 @@
 #!/usr/bin/env bash
 
 # Show a 7-day weather forecast as a notification
+# requires nerdfont, breeze-dark icon theme, and dunstify
+#set -x
 
-CONFIG=$HOME/.config/weather.conf
-LAT=48.220999
-LON=16.362096
+config=$HOME/.config/weather.conf
+api_url="https://api.openweathermap.org/data/2.5/"
+test_url="8.8.8.8"
+notify_icon=/usr/share/icons/breeze-dark/status/24@3x/state-offline.svg
 
-read a b c <<< $(tr '\n' ' ' <$CONFIG)
- 
-res=$(curl -s "https://api.openweathermap.org/data/2.5/onecall?lat=$LAT&lon=$LON&appid=$b&units=$c" | jq '.daily[] | "\(.dt) \(.temp.day) \(.weather[].icon)"')
+# declare the icons (nerd font)
+declare -A icons_nerd
+icons_nerd=(
+      [01d]="" [01n]="" # clear
+      [02d]="" [02n]="" # few clouds
+      [03d]="󰅟" [03n]="󰅟" # clouds
+      [04d]="󰅟" [04n]="󰅟" # clouds
+      [09d]="" [09n]="" # light rain
+      [10d]="" [10n]="" # rain
+      [13d]="" [13n]="" # snow
+      [11d]="" [11n]="" # thunderstorm
+      [50d]="" [50n]="" # fog
+)
 
-# create &| empty tempfile to store output string
-tmpfile=/tmp/forecast
-echo "" > $tmpfile
+# ping test_url to see if we're online so we fail early in case we're not
+ping -q -c 1 -W 1 $test_url &> /dev/null || { echo "no connection"; exit 1;}
 
-OLDIFS=$IFS
-IFS='"'
-for line in $res; do
+# read the config file for the needed info and generate query
+[ -f "$config" ] || [ -s "$config" ] || { echo "no or empty config file found at $config"; exit 1; }
+read lat lon apikey <<< $(tr '\n' ' ' <$config)
+query=$(printf "onecall?lat=%.2f&lon=%.2f&appid=%s&units=metric" $lat $lon $apikey)
 
-  dt=$(date -d @$(awk '{print $1}' <<< $line) +'%a, %d.%m.' 2>/dev/null)
-  tmp=$(printf %0.f $(awk '{print $2}' <<< $line))
-  e=$(awk '{print $3}' <<< $line)
+# fetch data from owm
+res=$(curl -s "${api_url}${query}" |
+      jq '.daily[] | "\(.dt) \(.temp.day) \(.weather[].icon)"' |
+      sed 's/\"//g')
 
-  # need this hack b/c for some reason i cannot detect if line is empty -.-
-  if [ "$dt" == "" ]; then
-    continue
-  fi
-  
-  i=""
-  if [[ $e == 01d ]]; then
-        i="" #clear day
-  elif [[ $e == 01n ]]; then
-        i="" #clear night
-  elif [[ $e == 02d ]]; then
-        i="" #few clouds day
-  elif [[ $e == 02n ]]; then
-        i="" #few clouds night
-  elif [[ $e == 03* || $e == 04*  ]]; then
-        i="" #scattered/broken clouds day/night
-  elif [[ $e == 09* ]]; then
-        i="" #shower rain day/night
-  elif [[ $e == 10d ]]; then
-        i="" #rain day
-  elif [[ $e == 10n ]]; then
-        i="" #rain night
-  elif [[ $e == "10d 11d" ]]; then
-        i="" #thunderstorm day
-  elif [[ $e == "10n 11n" ]]; then
-        i="" #thunderstorm night
-  elif [[ $e == 11* ]]; then
-        i="" #thunderstorm generic
-  elif [[ $e == 13* ]]; then
-        i="" #snow day/night
-  elif [[ $e == 50* ]]; then
-        i="" #fog day/night
-  fi
+# generate notification text
+outstr=""
+while read -r line; do
 
-  echo -e "$dt $i\t$tmp°C" >> $tmpfile
-done
-IFS=$OLDIFS
+      day=$(date -d @$(awk '{print $1}' <<< $line) +'%a, %d.%m.' 2>/dev/null)
+      tmp=$(printf %0.f $(awk '{print $2}' <<< $line))
+      icon=$(awk '{print $3}' <<< $line)
 
-notify-send -t 0 -u low "Forecast" "$(cat $tmpfile)"
+      # check if array subscript exists
+      # see https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Shell-Parameter-Expansion
+      # ${parameter:+word}
+      # If parameter is null or unset, nothing is substituted, otherwise the expansion of word is substituted.
+      [ "${icons_nerd[$icon]+exists}" ] || { echo "Invalid response from owm."; exit 1; }
+      i=${icons_nerd[$icon]}
 
+      outstr+="$day ${icons_nerd[$icon]}\t$tmp°C\n"
+done <<< $res
+
+# display forecast via notification
+dunstify -t 0 -r 1236 -u normal --icon=$notify_icon "Forecast" "$outstr"
