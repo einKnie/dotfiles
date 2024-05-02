@@ -54,12 +54,26 @@ icons_nerd=(
 		[50d]="" [50n]="" # fog
 	  )
 
+show_config_help() {
+	echo "please provide a configuration file at $config"
+	echo "with the *only* contents:"
+	echo
+	echo "latitude of your location"
+	echo "longitude of your location"
+	echo "openweathermap api key"
+	echo
+	echo "see note at the top of this script for more info"
+}
+
 # cleanup on exit
 cleanup() {
 	ret=$?
 	if [ $ret -ne 0 ]; then
 		# set error output
 		echo " ??" > $output
+		if [ $ret -eq 2 ]; then
+			show_config_help
+		fi
 	fi
 	exit $ret
 }
@@ -70,7 +84,7 @@ ping -q -c 1 -W 1 $test_url &> /dev/null || { echo "no connection"; exit 1;}
 
 # read the config file for the needed info and generate query
 # check if file exists and is not empty (no need to overdo it, there's enough error checking later on)
-[ -f "$config" ] || [ -s "$config" ] || { echo "no or empty config file found at $config"; exit 1; }
+[ -f "$config" ] || [ -s "$config" ] || { echo "no or empty config file found at $config"; exit 2; }
 read lat lon apikey <<< $(tr '\n' ' ' <$config)
 query=$(printf "weather?lat=%.2f&lon=%.2f&appid=%s&units=metric" $lat $lon $apikey)
 
