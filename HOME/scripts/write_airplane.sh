@@ -51,10 +51,8 @@ $HOME/bin/get_public_ip.sh&
 if [ "$new_state" == "1" ]; then
     echo "" > $outfile
 elif [ "$new_state" == "0" ]; then
-    #echo "" > $outfile
     rm $outfile
 else
     log_journal "unexpected rf state: $new_state"
     echo "" > $outfile
 fi
-
