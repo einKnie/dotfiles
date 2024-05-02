@@ -3,7 +3,7 @@
 # write bluetooth status symbol to file
 #
 # This script is called by udev rule /etc/udev/rules.d/50-bluetooth_headset.rules
-
+#set -x
 outfile="$HOME/.bt_status"
 scriptname="$(basename "$0")"
 
@@ -48,10 +48,10 @@ while (("$#")); do
             added=0
             shift 1
             ;;
-				-s)
-						speakers=1
-						shift 1
-						;;
+        -s)
+            speakers=1
+            shift 1
+            ;;
         *)
             echo "Error: Unrecoginzed parameter $1"
             print_help
