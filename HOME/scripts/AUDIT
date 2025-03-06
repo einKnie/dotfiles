@@ -1,5 +1,8 @@
 # source this file to enable bash logging for the current shell
 
+# beware: this will not work in combination with other tools that
+# also hook into the DEBUG trap, like direnv.
+
 # need to manually exclude the PROMPT_COMMAND from being logged.
 # continuation of the story (part one: see .bashrc)
 # i set PROMPT_COMMAND only to keep git_ps1 from printing its
