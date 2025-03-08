@@ -7,12 +7,10 @@ ipfile="$HOME/.publicip"
 
 # write current external ip to file
 ip="$(dig +short myip.dnsomatic.com 2>/dev/null)"
-if [ "$?" -ne 0 ]; then
+if [ "$?" -ne 0 ] || [[ $ip =~ [a-zA-z] ]]; then
 	echo "error: could not fetch public ip: $?"
   rm "$ipfile"
 else
 	echo "public ip: $ip"
   echo "$ip" > "$ipfile"
 fi
-
-
