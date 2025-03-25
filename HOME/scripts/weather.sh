@@ -123,7 +123,7 @@ get_icon() {
 			;;
 	esac
 
-	if [ $day -eq 0 ]; then
+	if [ "$day" == "0" ]; then
 		# inc by one for night icon
 		((idx++))
 	fi
