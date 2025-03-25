@@ -8,45 +8,65 @@
 
 general {
   colors = true
-  color_good = "#287f31"
+  color_good = "#D0D0D0"
   color_degraded = "#92691f"
   color_bad = "#af200f"
   interval = 5
 }
 
-order += "read_file audioSwitch"
+# secondary screen, reduced set
+order += "cpu_temperature 0"
+order += "load"
+order += "memory"
+order += "read_file bluetooth"
 order += "volume master"
 order += "read_file weather"
 order += "tztime local"
 
-read_file audioSwitch {
+cpu_temperature 0 {
+  format = "%degrees °C"
+  max_threshold = 80
+  format_above_threshold = " %degrees °C"
+  path = "/sys/class/hwmon/hwmon3/temp1_input"
+}
+
+load {
+  format = " %1min"
+}
+
+memory {
+  format = " %used"
+  threshold_degraded = "1G"
+  format_degraded = " < %available"
+}
+
+# no separator so this is truly hidden when gone
+read_file bluetooth {
   format = "%content"
-  format_bad = ""
-  path = "/home/lila/.audioswitch_status"
+  format_bad = ""
+  path = "/home/lila/.bt_status"
   separator = false
   separator_block_width = 1
   color_good = "#D0D0D0"
-  align = "right"
-  min_width = ""
 }
 
 volume master {
   format = " %volume"
-  format_muted = " %volume"
+  format_muted = " %volume"
   device = "default"
   mixer = "Master"
   color_degraded = "#D0D0D0"
   min_width = " 100%"
+  align = "right"
 }
 
 read_file weather {
   format = "%content"
-  format_bad = ""
-  path = "/home/lila/.weather"
+  format_bad = ""
   color_good = "#D0D0D0"
+  path = "/home/lila/.weather"
 }
 
 tztime local {
   format = " %a %Y %m %d %H:%M:%S"
-  separator = true
 }

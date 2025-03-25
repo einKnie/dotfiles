@@ -1,4 +1,4 @@
-# i3 config
+# i3 config for soma
 
 ###############################################################################
 # VARIABLES
@@ -9,18 +9,17 @@ set $mod Mod4
 # set term as variable for quick switching
 set $terminal urxvt
 
-# displays
-# check with xrandr -q
-set $display_primary "DP-5"
-set $display_secondary "DP-3"
-
+# set display variables
+set $display_primary "HDMI-A-0"
+set $display_secondary "DisplayPort-1"
 
 ###############################################################################
 # GENERAL I3 OPTIONS
 ###############################################################################
 
-# font
-font pango:DejaVu Sans Mono, FontAwesome6Free 8
+# fonts
+font pango:DejaVu Sans Mono 8, Symbols Nerd Font Mono 8
+#, FontAwesome6, FontAwesome6Free 8
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -33,28 +32,27 @@ hide_edge_borders both
 default_border none
 default_floating_border none
 
+for_window [window_role="pop-up"] floating enable
+
 ###############################################################################
 # STARTUP
 ###############################################################################
 
-# set background
-# info: due to an issue with picom, if you want a black bacground call `hsetroot -solid '#000000'` (instead of xsetroot)
-exec --no-startup-id $HOME/.fehbg &
+# set resolution && background
+# shoul be handled by autorandr, but keep both for good measure
+exec_always --no-startup-id $HOME/.screenlayout/main.sh && $HOME/.fehbg
 
-# start picom (restart always - need to kill manually to avoid multiples)
-exec_always --no-startup-id "killall -q picom; /usr/bin/picom -b --config $HOME/.config/picom/picom.conf"
+# start picom
+exec_always --no-startup-id "killall -q picom ; /usr/bin/picom  --config $HOME/.config/picom/picom.conf"
 
-# start dunst (restart always - need to kill manually to avoid multiples)
-exec_always --no-startup-id "killall -q dunst; /usr/bin/dunst -config $HOME/.config/dunst/dunstrc"
+# start dunst (restart always for testing - kill manually to avoid multiples)
+exec_always --no-startup-id "killall -q dunst ; /usr/bin/dunst -config $HOME/.config/dunst/dunstrc"
 
-# start vpn monitoring
-exec --no-startup-id "$HOME/bin/vpn_status -q -u vpn_up -d vpn_down"
+# vpn status monitoring
+exec --no-startup-id "$HOME/bin/vpn_status -q -u $HOME/bin/vpn_up -d $HOME/bin/vpn_down"
 
 # set numlock on startup
 exec --no-startup-id xdotool key --clearmodifiers Num_Lock
-
-# autostart thunderbird on a background workspace
-exec --no-startup-id i3-msg 'exec thunderbird; workspace $ws2; workspace $ws1'
 
 ###############################################################################
 # WORKSPACES
@@ -71,19 +69,19 @@ set $ws7 "7"
 set $ws8 "8"
 set $ws9 "9"
 set $ws10 "10"
-set $wsmail 
-set $wsmusic 
-set $wsgame 
-set $wsgraphic 
-set $wsmarkdown 
-set $wscode 
-set $wsspotify 
-set $wstorrent 
-set $wsmonitor 
-set $wsoffice 
-set $wsobsidian 
-set $wsspotify 
-set $wsdiscord 
+set $wsmail ""
+set $wsmusic ""
+set $wsgame ""
+set $wsgraphic ""
+set $wsmarkdown ""
+set $wscode ""
+set $wsspotify ""
+set $wstorrent ""
+set $wsmonitor ""
+set $wsoffice ""
+set $wsobsidian ""
+set $wsspotify ""
+set $wsdiscord ""
 
 # assign workspaces to displays
 workspace $ws1        output $display_primary
@@ -107,15 +105,12 @@ assign [class="Gimp"]           $wsgraphic
 assign [class="ghostwriter"]    $wsmarkdown
 assign [class="Code"]           $wscode
 assign [instance="libreoffice"] $wsoffice
-
-assign [class="Thunderbird"] $wsmail
-assign [class="Clementine"]  $wsmusic
-assign [class="Steam"]       $wsgame
-assign [class="Lutris"]      $wsgame
-assign [class="Deluge"]      $wstorrent
-assign [class="discord"]     $wsdiscord
-
-assign [class="obsidian"]    $wsobsidian
+assign [class="thunderbird"]    $wsmail
+assign [class="steam"]          $wsgame
+assign [class="Lutris"]         $wsgame
+assign [class="Deluge"]         $wstorrent
+assign [class="discord"]        $wsdiscord
+assign [class="obsidian"]       $wsobsidian
 
 # workaround
 # issue was: spotify app does not set the window hints at startup, so i3 can only get it after it is managed
@@ -134,6 +129,8 @@ bindsym $mod+8 workspace number $ws8
 bindsym $mod+9 workspace number $ws9
 bindsym $mod+0 workspace number $ws10
 bindsym $mod+e workspace $wsmail
+bindsym $mod+g workspace $wsgame
+
 
 # move focused container to workspace
 bindsym $mod+Shift+1 move container to workspace number $ws1
@@ -150,10 +147,6 @@ bindsym $mod+Shift+0 move container to workspace number $ws10
 ###############################################################################
 # I3 KEYBINDINGS (find key name with xev)
 ###############################################################################
-
-# reload/restart i3 [deprecated, use sysmenu]
-bindsym $mod+Shift+c reload
-bindsym $mod+Shift+r restart
 
 # containers
 # kill container
@@ -199,68 +192,39 @@ bindsym $mod+Tab exec --no-startup-id rofi -show window -lines 6
 # start ranger
 bindsym $mod+Shift+Return exec --no-startup-id $terminal -e ranger
 
-# start neovim
-bindsym $mod+Shift+v exec --no-startup-id $terminal -e nvim
-
 ###############################################################################
 # PERSONAL KEYBINDINGS (find key name with xev)
 ###############################################################################
 
-# manual lockscreen
-bindsym $mod+l exec --no-startup-id $HOME/bin/lockaction.sh
-#bindsym $mod+l exec --no-startup-id i3lock --nofork -i $HOME/Pictures/schwammal_small.png -u -t -c 1c1c1c -e
-
 # mute, volume++, volume--
-bindsym XF86AudioMute exec --no-startup-id amixer sset Master toggle
-bindsym XF86AudioLowerVolume exec --no-startup-id amixer sset Master 1%-
-bindsym XF86AudioRaiseVolume exec --no-startup-id amixer sset Master 1%+
+bindsym XF86AudioMute exec --no-startup-id $HOME/bin/audio_manage toggle && killall -USR1 i3status
+bindsym XF86AudioLowerVolume exec --no-startup-id $HOME/bin/audio_manage down && killall -USR1 i3status
+bindsym XF86AudioRaiseVolume exec --no-startup-id $HOME/bin/audio_manage up && killall -USR1 i3status
 
-# brightness control
-bindsym F10 exec --no-startup-id $HOME/bin/brightness.sh down
-bindsym F12 exec --no-startup-id $HOME/bin/brightness.sh up
+# add support for brightness control
+bindsym XF86MonBrightnessDown exec --no-startup-id $HOME/bin/brightness.sh down
+bindsym XF86MonBrightnessUp exec --no-startup-id $HOME/bin/brightness.sh up
 
-# swap workspaces on outputs [deprecated, use ws-mgmt mode]
-bindsym $mod+less exec --no-startup-id $HOME/scripts/swapWorkspace.sh
-
-# switch audio output
-# this script also writes current setting to file (~/.audioswitch_status) so it can be read by i3status
-bindsym F9 exec --no-startup-id $HOME/bin/writeAudioSwitch.sh
-
-# download the audio of whatever youtube link is in the clipboard right now
-bindsym $mod+shift+d exec --no-startup-id $HOME/bin/yt-download-audio.sh
+# toggle redshift
+bindsym $mod+y exec --no-startup-id $HOME/scripts/toggle_redshift.sh
 
 # show a 7-day weather forecast
 bindsym $mod+Shift+w exec --no-startup-id $HOME/bin/forecast.sh
 
 # dynamic ws names
 # rename keeping ws number [deprecated, use ws-mgmt mode]
-bindsym $mod+n exec $HOME/bin/rename_ws.sh
+bindsym $mod+Shift+n exec $HOME/bin/rename_ws.sh
 # rename dropping ws number
-bindsym $mod+Shift+n exec i3-msg rename workspace to $(rofi -dmenu -lines 0 -p 'new name')
+bindsym $mod+n exec i3-msg rename workspace to $(rofi -dmenu -lines 0 -p 'new name')
 
 # open monitoring
-bindsym $mod+m exec --no-startup-id $HOME/scripts/i3/new_workspace/new_workspace.sh monitoring
+bindsym $mod+m exec --no-startup-id $HOME/scripts/newworkspace/new_workspace.sh monitoring
 
-# toggle screen blanking
+# toggle screen blanking (screen turning off after 'inactivity')
 bindsym $mod+x exec --no-startup-id $HOME/scripts/xtc.sh
-
-# screen scaling
-#bindsym $mod+plus exec --no-startup-id $HOME/bin/zoom.sh up
-#bindsym $mod+minus exec --no-startup-id $HOME/bin/zoom.sh down
 
 # set timer
 bindsym $mod+Shift+t exec --no-startup-id $HOME/bin/reminder.sh --on -t
-
-# timeKeeper
-bindsym $mod+F1 exec --no-startup-id $HOME/bin/timeKeeper -t1 -s
-bindsym $mod+F2 exec --no-startup-id $HOME/bin/timeKeeper -t2 -s
-bindsym $mod+F3 exec --no-startup-id $HOME/bin/timeKeeper -t3 -s
-bindsym $mod+F4 exec --no-startup-id $HOME/bin/timeKeeper -t4 -s
-bindsym $mod+F5 exec --no-startup-id $HOME/bin/timeKeeper -t5 -s
-bindsym $mod+Escape exec --no-startup-id $HOME/bin/timeKeeper -q
-bindsym $mod+Print exec --no-startup-id $HOME/bin/timeKeeper -x
-bindsym $mod+0xfe52 exec --no-startup-id $HOME/bin/timeKeeper -v
-
 
 ###############################################################################
 # MODES
@@ -268,135 +232,131 @@ bindsym $mod+0xfe52 exec --no-startup-id $HOME/bin/timeKeeper -v
 
 # RESIZE
 mode "resize" {
-    bindsym Left resize shrink width 10 px or 10 ppt
-    bindsym Down resize grow height 10 px or 10 ppt
-    bindsym Up resize shrink height 10 px or 10 ppt
-    bindsym Right resize grow width 10 px or 10 ppt
+  bindsym Left resize shrink width 10 px or 10 ppt
+  bindsym Down resize grow height 10 px or 10 ppt
+  bindsym Up resize shrink height 10 px or 10 ppt
+  bindsym Right resize grow width 10 px or 10 ppt
 
-    bindsym Return mode "default"
-    bindsym Escape mode "default"
-    bindsym $mod+r mode "default"
+  bindsym Return mode "default"
+  bindsym Escape mode "default"
+  bindsym $mod+r mode "default"
 }
 bindsym $mod+r mode "resize"
 
 # POWER
 set $sysmenu "  [r]estart i3 - [l]ogout - [s]uspend - re[b]oot - po[w]eroff  "
 mode $sysmenu {
-    bindsym r         restart
-    bindsym l         exit
-    bindsym s         exec --no-startup-id systemctl suspend
-    bindsym b         exec --no-startup-id systemctl reboot
-    bindsym w         exec --no-startup-id systemctl poweroff
+  bindsym r         restart
+  bindsym l         exit
+  bindsym s         exec systemctl suspend
+  bindsym b         exec systemctl reboot
+  bindsym w         exec systemctl poweroff
 
-    bindsym Return    mode "default"
-    bindsym Escape    mode "default"
+  bindsym Return    mode "default"
+  bindsym Escape    mode "default"
 }
 bindsym $mod+q mode $sysmenu
 
 # SSH
-set $connect_mode "  1: laptop | 2: cor  "
-mode  $connect_mode {
-  bindsym 1     workspace "laptop" ; exec $terminal -e ssh laptop ; mode "default"
-  bindsym 2     workspace "cor"    ; exec $terminal -e ssh cor ;    mode "default"
+set $connect_mode " [d]endrit | [c]or "
+mode $connect_mode {
+  bindsym c         workspace "cor" ;     exec $terminal -e ssh cor ; mode "default"
+  bindsym d         workspace "dendrit" ; exec $terminal -e ssh $USER@dendrit ; mode "default"
 
-  bindsym Return mode "default"
-  bindsym Escape mode "default"
-  bindsym $mod+c mode "default"
+  bindsym Return    mode "default"
+  bindsym Escape    mode "default"
+  bindsym $mod+c    mode "default"
 }
-bindsym $mod+c mode $connect_mode
+bindsym $mod+c mode  $connect_mode
 
 # WS MANAGEMENT
-set $workspace_mode " [k]ill | re[n]ame | move ↔ "
+set $workspace_mode " [k]ill | re[n]ame | move ↔ | [s]creenshot | set keymap [l]ayout"
 mode $workspace_mode {
-  bindsym k exec --no-startup-id $HOME/scripts/ws_mgmt/kill_all.sh ; mode "default"
-  bindsym Left move workspace to output left ; mode "default"
-  bindsym Right move workspace to output right ; mode "default"
-  bindsym n exec --no-startup-id $HOME/scripts/ws_mgmt/ws_rename.sh ; mode "default"
-  #bindsym i exec $HOME/scripts/ws_mgmt/info.sh; mode "default" #todo
+  bindsym k         exec --no-startup-id $HOME/scripts/ws_mgmt/kill_all.sh ; mode "default"
+  bindsym Left      move workspace to output left ; mode "default"
+  bindsym Right     move workspace to output right ; mode "default"
+  bindsym n         exec --no-startup-id $HOME/scripts/ws_mgmt/ws_rename.sh ; mode "default"
+  bindsym s         exec --no-startup-id scrot -D $DISPLAY -F $HOME/Pictures/screenshot/%Y-%m-%d_%H-%M_\$a.png ; mode "default"
+  bindsym l         exec --no-startup-id setxkbmap -layout de ; mode "default"
 
-  bindsym Return mode "default"
-  bindsym Escape mode "default"
-  bindsym $mod+s mode "default"
+  bindsym Return    mode "default"
+  bindsym Escape    mode "default"
+  bindsym $mod+s    mode "default"
 }
 bindsym $mod+s mode $workspace_mode
 
-# GENERAL MANAGEMENT
-# todo
+# TIMEKEEPER
+set $time_mgmt_mode " switch to task[1-5] | [s]top tasks | [p]rint tasks | [w]rite task data to file | [q]uit timeKeeper "
+mode $time_mgmt_mode {
+  bindsym 1        exec --no-startup-id $HOME/bin/timeKeeper -t1 -s ; mode "default"
+  bindsym 2        exec --no-startup-id $HOME/bin/timeKeeper -t2 -s ; mode "default"
+  bindsym 3        exec --no-startup-id $HOME/bin/timeKeeper -t3 -s ; mode "default"
+  bindsym 4        exec --no-startup-id $HOME/bin/timeKeeper -t4 -s ; mode "default"
+  bindsym 5        exec --no-startup-id $HOME/bin/timeKeeper -t5 -s ; mode "default"
 
-# QUICKSTART
-# todo
+  bindsym s        exec --no-startup-id $HOME/bin/timeKeeper -e; mode "default"
+  bindsym p        exec --no-startup-id $HOME/bin/timeKeeper -v; mode "default"
+  bindsym w        exec --no-startup-id $HOME/bin/timeKeeper -x; mode "default"
+  bindsym q        exec --no-startup-id $HOME/bin/timeKeeper -q; mode "default"
+
+  bindsym Return    mode "default"
+  bindsym Escape    mode "default"
+  bindsym $mod+s    mode "default"
+}
+bindsym $mod+t mode $time_mgmt_mode
 
 ###############################################################################
 # STATUS BAR
 ###############################################################################
 
-# test loading variables from Xresources
-#set_from_resource $focused_bg i3wm.color_focused_bg #15151500
-# i3bar on secondary display - all the information
+# i3bar
+# 'output x' sets display, check available output with 'xrandr -q'
 bar {
-    i3bar_command i3bar --transparency
-    status_command i3status -c $HOME/.config/i3status/config_primary
-    output $display_secondary
-    tray_output $display_secondary
-    separator_symbol |
+	output $display_primary
+  i3bar_command i3bar --transparency
+  status_command i3status -c $HOME/.config/i3status/config
 
-    # create screenshot with right click on statusbar!
-    bindsym --release button3 exec --no-startup-id scrot $HOME/Pictures/screenshot/%Y-%m-%d_%H-%M_\$a.png
+  # create screenshot with right click on statusbar!
+  bindsym --release button3 exec --no-startup-id scrot $HOME/Pictures/screenshot/$(date +%Y-%m-%d_%H-%M-%S).png
 
-    # fix for https://github.com/i3/i3/issues/5372
-    tray_padding 0
+  # fix for https://github.com/i3/i3/issues/5372
+  tray_padding 0
 
-    colors {
-        background #000000BB
-        statusline #D0D0D0FF
-        separator  #D0D0D0AA
-        # class            #border   #bground  #text
-        focused_workspace  #FFFFFFEE #000000BB #D0D0D0FF
-        active_workspace   #3F3F3FCC #000000BB #D0D0D0C0
-        inactive_workspace #151515AA #000000BB #D0D0D0A0
-        urgent_workspace   #151515EE #000000BB #B2282CE0
-    }
+  colors {
+    background #000000BB
+    statusline #D0D0D0FF
+    separator  #D0D0D0AA
+    # class            #border   #bground  #text
+    focused_workspace  #FFFFFFEE #000000BB #D0D0D0FF
+    active_workspace   #3F3F3FCC #000000BB #D0D0D0C0
+    inactive_workspace #151515AA #000000BB #D0D0D0A0
+    urgent_workspace   #151515EE #000000BB #B2282CE0
+    binding_mode       #151515EE #000000BB #117A1CFF
+  }
 }
 
-# i3bar on primary display - less information
+# minimal secondary bar
 bar {
-    i3bar_command i3bar --transparency
-    status_command i3status -c $HOME/.config/i3status/config_secondary
-    output $display_primary
-    tray_output none
-    separator_symbol |
+	output $display_secondary
+  i3bar_command i3bar --transparency
+  status_command i3status -c $HOME/.config/i3status/config_secondary
 
-    # create screenshot with right click on statusbar!
-    bindsym --release button3 exec --no-startup-id scrot $HOME/Pictures/screenshot/%Y-%m-%d_%H-%M_\$a.png
+  # create screenshot with right click on statusbar!
+  bindsym --release button3 exec --no-startup-id scrot $HOME/Pictures/screenshot/$(date +%Y-%m-%d_%H-%M-%S).png
 
-    colors {
-        background #000000BB
-        statusline #D0D0D0FF
-        separator  #D0D0D0AA
-        # class            #border   #bground  #text
-        focused_workspace  #FFFFFFEE #000000BB #D0D0D0FF
-        active_workspace   #3F3F3FCC #000000BB #D0D0D0C0
-        inactive_workspace #151515AA #000000BB #D0D0D0A0
-        urgent_workspace   #151515EE #000000BB #B2282CE0
-    }
+  # fix for https://github.com/i3/i3/issues/5372
+  tray_padding 0
+
+  colors {
+    background #000000BB
+    statusline #D0D0D0FF
+    separator  #D0D0D0AA
+    # class            #border   #bground  #text
+    focused_workspace  #FFFFFFEE #000000BB #D0D0D0FF
+    active_workspace   #3F3F3FCC #000000BB #D0D0D0C0
+    inactive_workspace #151515AA #000000BB #D0D0D0A0
+    urgent_workspace   #151515EE #000000BB #B2282CE0
+    binding_mode       #151515EE #000000BB #117A1CFF
+  }
 }
 
-# TESTING i3status-rust (https://github.com/greshake/i3status-rust)
-# conclusion: too early in development, might contribute
-#bar {
-#    font pango:DejaVu Sans Mono, FontAwesome6Free 8
-#    position bottom
-#    output $display_secondary
-#    #status_command ~/.cargo/bin/i3status-rs $HOME/.config/i3status-rust/config.toml
-#    status_command ~/.cargo/bin/i3status-rs $HOME/tmp/i3status-rs.toml
-#    colors {
-#        background #18181800
-#        statusline #D0D0D000
-#        separator  #D0D0D050
-#        # class            #border   #bground  #text
-#        focused_workspace  #FFFFFF20 #15151500 #D0D0D020
-#        active_workspace   #3F3F3F20 #15151500 #D0D0D020
-#        inactive_workspace #15151520 #3F3F3F00 #D0D0D020
-#        urgent_workspace   #15151520 #15151500 #B2282C20
-#    }
-#}
