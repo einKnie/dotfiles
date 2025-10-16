@@ -1,0 +1,164 @@
+# i3status configuration file.
+# see "man i3status" for documentation.
+
+# It is important that this file is edited as UTF-8.
+# The following line should contain a sharp s:
+# ß
+# If the above line is not correctly displayed, fix your editor first!
+
+general {
+  colors = true
+  color_good = "#D0D0D0"
+  color_degraded = "#92691f"
+  color_bad = "#af200f"
+  interval = 5
+}
+
+order += "read_file airplane_mode"
+order += "read_file placeholder"
+order += "read_file vpn"
+order += "wireless _first_"
+order += "ethernet _first_"
+order += "read_file publicip"
+#order += "battery all"
+order += "disk /home"
+order += "disk /"
+order += "cpu_temperature 0"
+order += "load"
+order += "cpu_usage"
+order += "memory"
+order += "read_file bluetooth"
+order += "volume master"
+order += "read_file weather"
+order += "tztime local"
+
+# no separator so this is truly hidden when gone
+read_file airplane_mode {
+  format = "%content"
+  format_bad = ""
+  path = "/home/lila/.airplane_mode"
+  separator = false
+  separator_block_width = 1
+  color_good = "#D0D0D0"
+}
+
+# iff the airplane mode is active, we need a space between
+# the aiplane field and the vpn indicator
+read_file placeholder {
+    format = " "
+    format_bad = ""
+    path = "/home/lila/.airplane_mode"
+    color_good = "#D0D8D9"
+    color_bad = "#D0D8D9"
+}
+
+# no separator so this is truly hidden when gone
+read_file vpn {
+  format = "%content"
+  format_bad = ""
+  path = "/home/lila/.vpn_status"
+  separator = false
+  separator_block_width = 1
+  color_good = "#af200f"
+  align = "right"
+  min_width = ""
+}
+
+wireless _first_ {
+  format_up = " %quality at %essid (%ip)"
+  format_down = ""
+  color_good = "#D0D0D0"
+  format_quality = "%d%s"
+}
+
+ethernet _first_ {
+  format_up = " %ip"
+  format_down = ""
+  color_good = "#D0D0D0"
+}
+
+read_file publicip {
+  format = " %content"
+  format_bad = ""
+  path = "/home/lila/.publicip"
+  color_good = "#D0D0D0"
+  align = "right"
+}
+
+battery all {
+  last_full_capacity = true
+  format = "%status %percentage"
+  low_threshold = 15
+  threshold_type = "percentage"
+  status_full = ""
+  status_bat = ""
+  status_chr = ""
+  status_unk = ""
+}
+
+disk "/home" {
+  format = " %avail"
+  low_threshold = 10
+  threshold_type = percentage_free
+  format_below_threshold = "  %avail"
+}
+
+disk "/" {
+  format = " %avail"
+  low_threshold = 10
+  threshold_type = percentage_free
+  format_below_threshold = "  %avail"
+}
+
+cpu_temperature 0 {
+  format = "%degrees °C"
+  max_threshold = 80
+  format_above_threshold = " %degrees °C"
+  path = "/sys/class/hwmon/hwmon3/temp1_input"
+}
+
+load {
+  format = " %1min"
+}
+
+cpu_usage {
+	format = "%usage"
+}
+
+memory {
+  format = " %used"
+  threshold_degraded = "1G"
+  format_degraded = " < %available"
+}
+
+# no separator so this is truly hidden when gone
+read_file bluetooth {
+  format = "%content"
+  format_bad = ""
+  path = "/home/lila/.bt_status"
+  separator = false
+  separator_block_width = 1
+  color_good = "#D0D0D0"
+}
+
+volume master {
+  format = " %volume"
+  format_muted = " %volume"
+  #device = "pulse:alsa_output.pci-0000_07_00.6.analog-stereo"
+  device = "default"
+  mixer = "Master"
+  color_degraded = "#D0D0D0"
+  min_width = " 100%"
+  align = "right"
+}
+
+read_file weather {
+  format = "%content"
+  format_bad = ""
+  color_good = "#D0D0D0"
+  path = "/home/lila/.weather"
+}
+
+tztime local {
+  format = " %a %Y %m %d %H:%M:%S"
+}
